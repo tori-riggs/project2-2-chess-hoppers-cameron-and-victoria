@@ -1,0 +1,17 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Strings CAT DOG" type="Application" factoryName="Application">
+    <option name="ALTERNATIVE_JRE_PATH" value="17" />
+    <option name="MAIN_CLASS_NAME" value="puzzles.strings.Strings" />
+    <module name="ChessHoppers" />
+    <option name="PROGRAM_PARAMETERS" value="CAT DOG" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="strings.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

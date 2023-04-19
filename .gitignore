@@ -1,0 +1,5 @@
+out/*
+*.class
+*.out
+._*
+.DS_Store

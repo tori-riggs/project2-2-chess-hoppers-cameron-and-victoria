@@ -83,6 +83,12 @@ public class HoppersConfig implements Configuration{
         return isRedFrog;
     }
 
+    /**
+     * Checks whether this object and another are equal
+     * @param obj the object to check if it is equal
+     * @return true if obj is a HoppersConfig and the rows, column, grid, and frogPositions are the same,
+     * false otherwise
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof HoppersConfig otherConfig) {
@@ -92,6 +98,11 @@ public class HoppersConfig implements Configuration{
         return false;
     }
 
+    /**
+     * Generates a hash code for this object
+     * @return the hashcode made by adding the integers rows and columns to the grid's hashcode and the frog positions
+     * set hashcode
+     */
     @Override
     public int hashCode() {
         return rows + columns + Arrays.deepHashCode(grid) + frogPositions.hashCode();

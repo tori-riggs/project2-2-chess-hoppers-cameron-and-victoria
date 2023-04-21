@@ -10,11 +10,9 @@ public class Solver {
     /**
      * Create solver for the clock and strings puzzle
      * @param start the starting node
-     * @param end the goal node
      */
-    public Solver(Configuration start, Configuration end) {
+    public Solver(Configuration start) {
         this.start = start;
-        this.end = end;
     }
 
     public void solve() {
@@ -28,7 +26,8 @@ public class Solver {
         while (!queue.isEmpty()) {
             Configuration current = queue.remove(0);
 
-            if (current.equals(end)) {
+            if (current.isSolution()) {
+                end = current;
                 break;
             }
 

@@ -137,21 +137,29 @@ public class HoppersConfig implements Configuration{
             // Go to the neighbors (within bounds)
             for (int i = Math.max(0, coord.row() - 1); i <= Math.min(coord.row() + 1, rows - 1); i++) {
                 for (int j = Math.max(0, coord.col() - 1); j <= Math.min(coord.col() + 1, columns - 1); j++) {
-                    // Create integers for a row further
+                    // Create integers for a row further and col further in the direction of the neighbor
                     int rowFurther = 2 * i - coord.row();
                     int colFurther = 2 * j - coord.col();
                     //Make sure that this is not the cell you are checking the neighbors of
                     if ((i != coord.row() || j != coord.col())) {
-                        //Make sure that the neighbor is a frog and that the space after it is not out of bounds
+                        //Make sure that the space after the neighbor is not out of bounds
                         if (rowFurther >= 0 &&
                                 rowFurther < rows && colFurther >= 0 && colFurther < columns) {
-                            //Do not make a config if this is an odd row and the neighbor is vertical or horizontal
+                            //If this is a horizontal or vertical neighbor, make sure that there is a frog to jump and
+                            //this is an even row
                             if ((coord.col() == j || coord.row() == i) && grid[rowFurther][colFurther] == GREEN_FROG &&
                                     coord.row() % 2 == 0) {
+                                /*
+                                If this is an even row, and the neighbor is horizontal or vertical, and there is a
+                                green frog at the row further than the neighbor,
+                                create integers for the next valid space, which is three rows further than the neighbor
+                                */
                                 int threeRowsFurther = 2 * (2 * rowFurther - i) - rowFurther;
                                 int threeColsFurther = 2 * (2 * colFurther - j) - colFurther;
+                                //Make sure this space is within bounds
                                 if (threeRowsFurther >= 0 &&
-                                        threeRowsFurther < rows && threeColsFurther >= 0 && threeColsFurther < columns) {
+                                        threeRowsFurther < rows && threeColsFurther >= 0 && threeColsFurther < columns){
+                                    //If it is also empty, then create and add a child config to make the move
                                     if (grid[threeRowsFurther][threeColsFurther] == EMPTY) {
                                         HoppersConfig child = new HoppersConfig(this);
                                         child.grid[coord.row()][coord.col()] = EMPTY;
@@ -163,8 +171,10 @@ public class HoppersConfig implements Configuration{
                                         neighbors.add(child);
                                     }
                                 }
+                                //This else is for all diagonal neighbors
                             } else {
-                                //If the space behind the neighbor is empty, make a config and add it to neighbors
+                                //Make sure there is an empty space beyond the neighbor and that there is a frog at the
+                                //neighbor
                                 if (grid[rowFurther][colFurther] == EMPTY && grid[i][j] == GREEN_FROG) {
                                     HoppersConfig child = new HoppersConfig(this);
                                     child.grid[coord.row()][coord.col()] = EMPTY;

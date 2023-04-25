@@ -132,7 +132,7 @@ public class ChessConfig implements Configuration {
 //            }
             for (Position p : pieces) {
                 if (p.getPiece() == PAWN) {
-                    pawnMoves(p);
+                    successors.addAll(pawnMoves(p));
                 }
                 if (p.getPiece() == BISHOP) {
                     // For bishop top left, row and column decrement by 1
@@ -170,7 +170,61 @@ public class ChessConfig implements Configuration {
                 moves.add(child2);
             }
         }
-        return successors;
+        return moves;
+    }
+
+    public Collection<Configuration> bishopMoves(Position p) {
+        // For bishop top left, row and column decrement by 1
+        // (-1, -1), (-2, -2), (-3, -3)
+        // Going top right, -1 +1
+        // Going bottom left, +1 -1
+        // Going bottom right, +1 +1
+        ArrayList<Configuration> moves = new ArrayList<>();
+
+        for (int i = 1; i < ROWS; i++) {
+            for (int j = 1; j < COLS; j++) {
+                int topRow = p.getRow() - i;
+                int leftCol = p.getCol() - i;
+                int bottRow = p.getRow() - i;
+                int rightCol = p.getCol() - i;
+                if (isValidPos(topRow, leftCol)) {
+                    if (!(board[topRow][leftCol] == EMPTY)
+                            && !((board[topRow][leftCol] == KING))) {
+                        ChessConfig child = new ChessConfig(this, p.getRow(),
+                                p.getCol(), topRow, leftCol);
+                        moves.add(child);
+                    }
+                }
+                // going top right
+                if (isValidPos(topRow, rightCol)) {
+                    if (!(board[topRow][rightCol] == EMPTY)
+                            && !((board[topRow][rightCol] == KING))) {
+                        ChessConfig child = new ChessConfig(this, p.getRow(),
+                                p.getCol(), topRow, rightCol);
+                        moves.add(child);
+                    }
+                }
+                // going down left
+                if (isValidPos(bottRow, leftCol)) {
+                    if (!(board[bottRow][leftCol] == EMPTY)
+                            && !((board[bottRow][leftCol] == KING))) {
+                        ChessConfig child = new ChessConfig(this, p.getRow(),
+                                p.getCol(), bottRow, leftCol);
+                        moves.add(child);
+                    }
+                }
+                // going down right
+                if (isValidPos(bottRow, rightCol)) {
+                    if (!(board[bottRow][rightCol] == EMPTY)
+                            && !(board[bottRow][rightCol] == KING)) {
+                        ChessConfig child = new ChessConfig(this, p.getRow(),
+                                p.getCol(), bottRow, rightCol);
+                        moves.add(child);
+                    }
+                }
+            }
+        }
+        return moves;
     }
 
     public boolean isValidPos(int row, int col) {

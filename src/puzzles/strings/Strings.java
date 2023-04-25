@@ -31,7 +31,7 @@ public class Strings {
             System.out.println("Start: " + start + ", End: " + finish);
             StringsConfig startConfig = new StringsConfig(start, finish);
             StringsConfig goalConfig = new StringsConfig(finish, finish);
-            Solver solve = new Solver(startConfig, goalConfig);
+            Solver solve = new Solver(startConfig);
             solve.solve();
         }
     }

@@ -13,6 +13,7 @@ public class Chess {
                 String filename = args[0];
                 ChessConfig start = new ChessConfig(filename);
                 Solver solver = new Solver(start);
+                solver.solveAndPrint();
             } catch (IOException ex) {
                 System.err.println("IOException");
             }

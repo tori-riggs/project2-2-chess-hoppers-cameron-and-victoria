@@ -56,7 +56,7 @@ public class Solver {
         int step = 0;
         for (String s : path) {
             if (!s.equals("No solution.")) {
-                System.out.println("Step " + step + ": " + s);
+                System.out.println("Step " + step + ": " + s.toString());
                 step++;
             } else {
                 System.out.println(s);

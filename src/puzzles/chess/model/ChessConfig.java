@@ -332,7 +332,7 @@ public class ChessConfig implements Configuration {
             moves.add(child);
         }
         // Down two left column
-        if (isValidPos(downTwo, rightCol)
+        if (isValidPos(downTwo, leftCol)
                 && isCapture(downTwo, leftCol)) {
             ChessConfig child = new ChessConfig(this, p.getRow(),
                     p.getCol(), downTwo, leftCol);

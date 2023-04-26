@@ -32,7 +32,7 @@ public class Strings {
             StringsConfig startConfig = new StringsConfig(start, finish);
             StringsConfig goalConfig = new StringsConfig(finish, finish);
             Solver solve = new Solver(startConfig);
-            solve.solve();
+            solve.solveAndPrint();
         }
     }
 }

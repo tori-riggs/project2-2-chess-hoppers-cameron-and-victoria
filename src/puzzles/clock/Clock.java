@@ -35,7 +35,7 @@ public class Clock {
             ClockConfig goalConfig = new ClockConfig(hours, end, end);
             System.out.println("Hours: " + hours + ", Start: " + start + ", End: " + end);
             Solver solve = new Solver(startConfig);
-            solve.solve();
+            solve.solveAndPrint();
         }
     }
 }

@@ -20,7 +20,6 @@ public class HoppersPTUI implements Observer<HoppersModel, String> {
     public void update(HoppersModel model, String data) {
         // for demonstration purposes
         System.out.println(data);
-        System.out.println(model);
     }
 
     private void displayHelp() {
@@ -29,6 +28,10 @@ public class HoppersPTUI implements Observer<HoppersModel, String> {
         System.out.println( "s(elect) r c        -- select cell at r, c" );
         System.out.println( "q(uit)              -- quit the game" );
         System.out.println( "r(eset)             -- reset the current game" );
+    }
+
+    private void hint() {
+        System.out.println();
     }
 
     public void run() {
@@ -40,6 +43,8 @@ public class HoppersPTUI implements Observer<HoppersModel, String> {
             if (words.length > 0) {
                 if (words[0].startsWith( "q" )) {
                     break;
+                } else if (words[0].startsWith("l")) {
+                    model.load(words[1]);
                 }
                 else {
                     displayHelp();
@@ -53,7 +58,7 @@ public class HoppersPTUI implements Observer<HoppersModel, String> {
             System.out.println("Usage: java HoppersPTUI filename");
         } else {
             try {
-                ChessPTUI ptui = new ChessPTUI();
+                HoppersPTUI ptui = new HoppersPTUI();
                 ptui.init(args[0]);
                 ptui.run();
             } catch (IOException ioe) {

@@ -12,9 +12,11 @@ public class Hoppers {
         }
 
         System.out.println("File: " + args[0]);
+        HoppersConfig initialConfig = new HoppersConfig(args[0]);
+        Solver solver = new Solver(initialConfig);
 
-        Solver solver = new Solver(new HoppersConfig(args[0]));
+        System.out.println(initialConfig);
 
-        solver.solve();
+        solver.solveAndPrint();
     }
 }

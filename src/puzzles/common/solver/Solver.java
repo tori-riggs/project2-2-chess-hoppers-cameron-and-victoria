@@ -16,6 +16,7 @@ public class Solver {
     public Solver(Configuration start) {
         this.start = start;
     }
+
     public List<String> solve() {
         List<Configuration> queue = new LinkedList<>();
         Map<Configuration, Configuration> predecessors = new HashMap<>();

@@ -558,4 +558,18 @@ public class ChessConfig implements Configuration {
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < ROWS; i++) {
+            sb.append("\n");
+            for (int j = 0; j < COLS; j++) {
+                sb.append(board[i][j]);
+                sb.append(" ");
+            }
+        }
+        sb.append("\n");
+        return sb.toString();
+    }
 }

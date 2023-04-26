@@ -12,6 +12,7 @@ public class Chess {
             try {
                 String filename = args[0];
                 ChessConfig start = new ChessConfig(filename);
+                System.out.println(start.toString());
                 Solver solver = new Solver(start);
                 solver.solveAndPrint();
             } catch (IOException ex) {

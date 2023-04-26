@@ -110,7 +110,6 @@ public class ChessConfig implements Configuration {
 //            for (Position p : this.pieces) {
             for (int i = 0; i < pieces.size(); i++) {
                 Position p = pieces.get(i);
-                // TODO COncurrentModificationException
                 if (p.getPiece() == PAWN) {
                     successors.addAll(pawnMoves(p));
                 }
@@ -333,7 +332,7 @@ public class ChessConfig implements Configuration {
             moves.add(child);
         }
         // Down two left column
-        if (isValidPos(downTwo, rightCol)
+        if (isValidPos(downTwo, leftCol)
                 && isCapture(downTwo, leftCol)) {
             ChessConfig child = new ChessConfig(this, p.getRow(),
                     p.getCol(), downTwo, leftCol);

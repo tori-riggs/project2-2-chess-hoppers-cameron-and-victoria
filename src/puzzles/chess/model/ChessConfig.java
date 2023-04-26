@@ -24,8 +24,6 @@ public class ChessConfig implements Configuration {
     private static int COLS;
     private char[][] board;
     private ArrayList<Configuration> successors;
-    private int row;
-    private int col;
     private int numPieces;
     private ArrayList<Position> pieces;
 
@@ -66,8 +64,6 @@ public class ChessConfig implements Configuration {
                     }
                 }
             }
-            this.row = 0;
-            this.col = -1;
         } catch (IOException e) {
             System.err.println("IOException");
         }
@@ -76,27 +72,15 @@ public class ChessConfig implements Configuration {
     public ChessConfig(ChessConfig other, int startRow,
                        int startCol, int endRow, int endCol) {
         board = new char[ROWS][COLS];
-        this.row = other.row;
-        this.col = other.col;
         this.pieces = new ArrayList<>();
 //        this.numPieces = other.numPieces - 1; // captured
         for (int i = 0; i < ROWS; i++) {
-            System.arraycopy(other.board[i], 0, this.board[i], 0, ROWS);
+            System.arraycopy(other.board[i], 0, this.board[i], 0, COLS);
         }
         // piece replaces captured piece's position
         board[endRow][endCol] = board[startRow][startCol];
         // original position of piece is empty
         board[startRow][startCol] = EMPTY;
-//        for (int i = 0; i < this.pieces.size(); i++) {
-//            if ((this.pieces.get(i).getRow() == startRow)
-//                    && (this.pieces.get(i).getCol() == startCol)) {
-//                this.pieces.remove(i);
-//            }
-//            if ((this.pieces.get(i).getRow() == endRow)
-//                    && (this.pieces.get(i).getCol() == endCol)) {
-//                this.pieces.get(i).setPiece(board[endRow][endCol]);
-//            }
-//        }
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
                 if (this.board[i][j] != EMPTY) {
@@ -119,10 +103,6 @@ public class ChessConfig implements Configuration {
     @Override
     public Collection<Configuration> getNeighbors() {
         successors = new ArrayList<>();
-        int r = row;
-        int c = col + 1;
-//        if ((row == ROWS - 1) && (this.col == COLS - 1)) {
-//            return successors;
         // Win condition: only one piece on the board
         if (pieces.size() == 1) {
             return successors;
@@ -142,9 +122,22 @@ public class ChessConfig implements Configuration {
                     // Going bottom right, +1 +1
                     successors.addAll(bishopMoves(p));
                 }
+                if (p.getPiece() == KING) {
+                    successors.addAll(kingMoves(p));
+                }
+                if (p.getPiece() == KNIGHT) {
+                    successors.addAll(knightMoves(p));
+                }
+                if (p.getPiece() == ROOK) {
+                    successors.addAll(rookMoves(p));
+                }
+
+                if (p.getPiece() == QUEEN) {
+                    successors.addAll(queenMoves(p));
+                }
             }
         }
-        return null;
+        return successors;
     }
 
     public Collection<Configuration> pawnMoves(Position p) {
@@ -178,50 +171,377 @@ public class ChessConfig implements Configuration {
         // Going top right, -1 +1
         // Going bottom left, +1 -1
         // Going bottom right, +1 +1
-        // TODO make sure this works
+        // TODO should it return as soon as a config is made?
         ArrayList<Configuration> moves = new ArrayList<>();
 
+        // TODO is it a good idea to have it less than ROWS?
+        // Did we already make a capture in this direction?
+        boolean topLeftCapture = false;
+        boolean topRightCapture = false;
+        boolean bottLeftCapture = false;
+        boolean bottRightCapture = false;
+
         for (int i = 1; i < ROWS; i++) {
-            int topRow = p.getRow() - i;
+            int upRow = p.getRow() - i;
             int leftCol = p.getCol() - i;
-            int bottRow = p.getRow() + i;
+            int downRow = p.getRow() + i;
             int rightCol = p.getCol() + i;
-            if (isValidPos(topRow, leftCol)) {
-                if (!(board[topRow][leftCol] == EMPTY)
-                        && !((board[topRow][leftCol] == KING))) {
-                    ChessConfig child = new ChessConfig(this, p.getRow(),
-                            p.getCol(), topRow, leftCol);
-                    moves.add(child);
-                }
+
+            if (!(topLeftCapture) && isValidPos(upRow, leftCol)
+                    && isCapture(upRow, leftCol)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), upRow, leftCol);
+                moves.add(child);
+                topLeftCapture = true;
             }
             // going top right
-            if (isValidPos(topRow, rightCol)) {
-                if (!(board[topRow][rightCol] == EMPTY)
-                        && !((board[topRow][rightCol] == KING))) {
+            if (!topRightCapture && isValidPos(upRow, rightCol)
+                    && isCapture(upRow, rightCol)) {
                     ChessConfig child = new ChessConfig(this, p.getRow(),
-                            p.getCol(), topRow, rightCol);
+                            p.getCol(), upRow, rightCol);
                     moves.add(child);
-                }
+                    topRightCapture = true;
             }
+
             // going down left
-            if (isValidPos(bottRow, leftCol)) {
-                if (!(board[bottRow][leftCol] == EMPTY)
-                        && !((board[bottRow][leftCol] == KING))) {
-                    ChessConfig child = new ChessConfig(this, p.getRow(),
-                            p.getCol(), bottRow, leftCol);
-                    moves.add(child);
-                }
+            if (!bottLeftCapture && isValidPos(downRow, leftCol)
+                    && isCapture(downRow, leftCol)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), downRow, leftCol);
+                moves.add(child);
+                bottLeftCapture = true;
             }
+
             // going down right
-            if (isValidPos(bottRow, rightCol)) {
-                if (!(board[bottRow][rightCol] == EMPTY)
-                        && !(board[bottRow][rightCol] == KING)) {
-                    ChessConfig child = new ChessConfig(this, p.getRow(),
-                            p.getCol(), bottRow, rightCol);
-                    moves.add(child);
-                }
+            if (!bottRightCapture && isValidPos(downRow, rightCol)
+                    && isCapture(downRow, rightCol)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), downRow, rightCol);
+                moves.add(child);
+                bottRightCapture = true;
             }
         }
+        return moves;
+    }
+
+    public Collection<Configuration> kingMoves(Position p) {
+        ArrayList<Configuration> moves = new ArrayList<>();
+
+        int topRow = p.getRow() - 1;
+        int bottRow = p.getRow() + 1;
+        int leftCol = p.getCol() - 1;
+        int rightCol = p.getCol() + 1;
+
+        //        for (int i = 1; i < ROWS; i++) {
+            // Top left
+        if (isValidPos(topRow, leftCol)) {
+            if ((board[topRow][leftCol] != EMPTY)
+                    && (board[topRow][leftCol] != KING)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), topRow, leftCol);
+                moves.add(child);
+            }
+        }
+        // Top
+        if (isValidPos(topRow, p.getCol())) {
+            if ((board[topRow][p.getCol()] != EMPTY)
+                    && (board[topRow][p.getCol()] != KING)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), topRow, p.getCol());
+                moves.add(child);
+            }
+        }
+
+        // Top right
+        if (isValidPos(topRow, rightCol)) {
+            if ((board[topRow][rightCol] != EMPTY)
+                    && (board[topRow][rightCol] != KING)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), topRow, rightCol);
+                moves.add(child);
+            }
+        }
+
+        // Left
+        if (isValidPos(p.getRow(), leftCol)) {
+            if ((board[p.getRow()][leftCol] != EMPTY)
+                    && (board[p.getRow()][leftCol] != KING)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), p.getRow(), leftCol);
+                moves.add(child);
+            }
+        }
+
+        // Right
+        if (isValidPos(p.getRow(), rightCol)) {
+            if ((board[p.getRow()][rightCol] != EMPTY)
+                    && (board[p.getRow()][rightCol] != KING)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), p.getRow(), rightCol);
+                moves.add(child);
+            }
+        }
+
+        // Down left
+        if (isValidPos(bottRow, leftCol)) {
+            if ((board[bottRow][leftCol] != EMPTY)
+                    && (board[bottRow][leftCol] != KING)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), bottRow, leftCol);
+                moves.add(child);
+            }
+        }
+
+        // Down
+        if (isValidPos(bottRow, p.getCol())) {
+            if ((board[bottRow][p.getCol()] != EMPTY)
+                    && (board[bottRow][p.getCol()] != KING)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), bottRow, p.getCol());
+                moves.add(child);
+            }
+        }
+
+        // Down right
+        if (isValidPos(bottRow, rightCol)) {
+            if ((board[bottRow][rightCol] != EMPTY)
+                    && (board[bottRow][rightCol] != KING)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), bottRow, rightCol);
+                moves.add(child);
+            }
+        }
+        return moves;
+    }
+
+    public Collection<Configuration> knightMoves(Position p) {
+        ArrayList<Configuration> moves = new ArrayList<>();
+        int downTwo = p.getRow() + 2;
+        int upTwo = p.getRow() - 2;
+        int upOne = p.getRow() - 1;
+        int downOne = p.getRow() + 1;
+        int leftTwoCol = p.getCol() - 2;
+        int rightTwoCol = p.getCol() + 2;
+        int rightCol = p.getCol() + 1;
+        int leftCol = p.getCol() - 1;
+
+        // L shape, down two right one
+        if (isValidPos(downTwo, rightCol)
+                && isCapture(downTwo, rightCol)) {
+            ChessConfig child = new ChessConfig(this, p.getRow(),
+                    p.getCol(), downTwo, rightCol);
+            moves.add(child);
+        }
+        // Down two left column
+        if (isValidPos(downTwo, rightCol)
+                && isCapture(downTwo, leftCol)) {
+            ChessConfig child = new ChessConfig(this, p.getRow(),
+                    p.getCol(), downTwo, leftCol);
+            moves.add(child);
+        }
+        // Up two left column
+        if (isValidPos(upTwo, leftCol) && isCapture(upTwo, leftCol)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), upTwo, leftCol);
+                moves.add(child);
+        }
+
+        // Up two right column
+        if (isValidPos(upTwo, rightCol)
+                && isCapture(upTwo, rightCol)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), upTwo, rightCol);
+                moves.add(child);
+        }
+        // Right two cols, Down one row (horizontal downwards L).
+        if ((isValidPos(downOne, rightTwoCol))
+                && (isCapture(downOne, rightTwoCol))) {
+            ChessConfig child = new ChessConfig(this, p.getRow(),
+                    p.getCol(), downOne, rightTwoCol);
+            moves.add(child);
+        }
+
+        // Right two cols, up one row
+        if ((isValidPos(upOne, rightTwoCol))
+                && (isCapture(upOne, rightTwoCol))) {
+            ChessConfig child = new ChessConfig(this, p.getRow(),
+                    p.getCol(), upOne, rightTwoCol);
+            moves.add(child);
+        }
+
+        // Left two cols, up one row
+        if (isValidPos(upOne, leftTwoCol)
+                && isCapture(upOne, leftTwoCol)) {
+            ChessConfig child = new ChessConfig(this, p.getRow(),
+                    p.getCol(), upOne, leftTwoCol);
+            moves.add(child);
+        }
+
+        // Left two cols, down one row
+        if (isValidPos(downOne, leftTwoCol)
+                && isCapture(downOne, leftTwoCol)) {
+            ChessConfig child = new ChessConfig(this, p.getRow(),
+                    p.getCol(), downOne, leftTwoCol);
+            moves.add(child);
+        }
+
+        // Up one, left two cols
+        if (isValidPos(upOne, leftTwoCol)
+                && isCapture(upOne, leftTwoCol)) {
+            ChessConfig child = new ChessConfig(this, p.getRow(),
+                    p.getCol(), upOne, leftTwoCol);
+            moves.add(child);
+        }
+        return moves;
+    }
+
+    public Collection<Configuration> rookMoves(Position p) {
+        ArrayList<Configuration> moves = new ArrayList<>();
+        // Did we already capture in this direction?
+        boolean captureRight = false;
+        boolean captureLeft = false;
+        boolean captureUp = false;
+        boolean captureDown = false;
+
+        for (int i = 1; i < ROWS; i++) {
+            int upRow = p.getRow() - i;
+            int downRow = p.getRow() + i;
+
+            if (!captureUp && isValidPos(upRow, p.getCol())
+                    && isCapture(upRow, p.getCol())) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), upRow, p.getCol());
+                moves.add(child);
+                captureUp = true;
+            }
+
+            if (!captureDown && isValidPos(downRow, p.getCol())
+                    && isCapture(downRow, p.getCol())) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), downRow, p.getCol());
+                moves.add(child);
+                captureDown = true;
+            }
+        }
+
+        for (int i = 1; i < COLS; i++) {
+            int leftCol = p.getCol() - i;
+            int rightCol = p.getCol() + i;
+
+            if (!captureLeft && isValidPos(p.getRow(), leftCol)
+                    && isCapture(p.getRow(), leftCol)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), p.getRow(), leftCol);
+                moves.add(child);
+                captureLeft = true;
+            }
+
+            if (!captureRight && isValidPos(p.getRow(), rightCol)
+                    && isCapture(p.getRow(), rightCol)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), p.getRow(), rightCol);
+                moves.add(child);
+                captureRight = true;
+            }
+        }
+        return moves;
+    }
+
+    public Collection<Configuration> queenMoves(Position p) {
+        ArrayList<Configuration> moves = new ArrayList<>();
+
+        boolean captureTopLeft = false;
+        boolean captureTopRight = false;
+        boolean captureDownLeft = false;
+        boolean captureDownRight = false;
+        boolean captureRight = false;
+        boolean captureLeft = false;
+        boolean captureUp = false;
+        boolean captureDown = false;
+
+        for (int i = 1; i < ROWS; i++) {
+            int upRow = p.getRow() - i;
+            int downRow = p.getRow() + i;
+            int leftCol = p.getCol() - i;
+            int rightCol = p.getCol() + i;
+
+            if (!captureUp && isValidPos(upRow, p.getCol())
+                    && isCapture(upRow, p.getCol())) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), upRow, p.getCol());
+                moves.add(child);
+                captureUp = true;
+            }
+
+            if (!captureDown && isValidPos(downRow, p.getCol())
+                    && isCapture(downRow, p.getCol())) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), downRow, p.getCol());
+                moves.add(child);
+                captureDown = true;
+            }
+
+            if (!captureTopLeft && isValidPos(upRow, leftCol) && isCapture(upRow, leftCol)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), upRow, leftCol);
+                moves.add(child);
+                captureTopLeft = true;
+            }
+
+            if (!captureTopRight && isValidPos(upRow, rightCol) && isCapture(upRow, rightCol)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), upRow, rightCol);
+                moves.add(child);
+                captureTopRight = true;
+            }
+
+            if (!captureTopLeft && isValidPos(upRow, leftCol) && isCapture(upRow, leftCol)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), upRow, leftCol);
+                moves.add(child);
+                captureTopLeft = true;
+            }
+
+            // going down right
+            if (!captureDownRight && isValidPos(downRow, rightCol)
+                    && isCapture(downRow, rightCol)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), downRow, rightCol);
+                moves.add(child);
+                captureDownRight = true;
+            }
+
+            // going down left
+            if (!captureDownLeft && isValidPos(downRow, leftCol)
+                    && isCapture(downRow, leftCol)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), downRow, leftCol);
+                moves.add(child);
+                captureDownLeft = true;
+            }
+        }
+
+        for (int i = 0; i < COLS; i++){
+            int leftCol = p.getCol() - i;
+            int rightCol = p.getCol() + i;
+
+            if (!captureLeft && isValidPos(p.getRow(), leftCol)
+                    && isCapture(p.getRow(), leftCol)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), p.getRow(), leftCol);
+                moves.add(child);
+                captureLeft = true;
+            }
+
+            if (!captureRight && isValidPos(p.getRow(), rightCol)
+                    && isCapture(p.getRow(), rightCol)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), p.getRow(), rightCol);
+                moves.add(child);
+                captureRight = true;
+            }
+        }
+
         return moves;
     }
 
@@ -231,5 +551,12 @@ public class ChessConfig implements Configuration {
         } else {
             return false;
         }
+    }
+
+    public boolean isCapture(int row, int col) {
+        if ((board[row][col] != EMPTY) && (board[row][col] != KING)) {
+            return true;
+        }
+        return false;
     }
 }

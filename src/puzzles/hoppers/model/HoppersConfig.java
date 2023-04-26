@@ -18,8 +18,8 @@ public class HoppersConfig implements Configuration{
     private final static char EMPTY = '.';
     private final static char RED_FROG = 'R';
     private final static char GREEN_FROG = 'G';
-    private final int rows;
-    private final int columns;
+    private static int rows;
+    private static int columns;
     private final char[][] grid;
     private Set<Coordinates> frogPositions = new HashSet<>();
 
@@ -54,11 +54,9 @@ public class HoppersConfig implements Configuration{
      * @param other the HopperConfig to copy from
      */
     private HoppersConfig(HoppersConfig other) {
-        this.rows = other.rows;
-        this.columns = other.columns;
         this.frogPositions = new HashSet<>(other.frogPositions);
-        this.grid = new char[other.rows][other.columns];
-        for (int i = 0; i < other.rows; i++) {
+        this.grid = new char[rows][columns];
+        for (int i = 0; i < rows; i++) {
             this.grid[i] = Arrays.copyOf(other.grid[i], columns);
         }
     }
@@ -92,8 +90,7 @@ public class HoppersConfig implements Configuration{
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof HoppersConfig otherConfig) {
-            return otherConfig.rows == rows && otherConfig.columns == columns &&
-                    Arrays.deepEquals(otherConfig.grid, grid) && otherConfig.frogPositions.equals(frogPositions);
+            return Arrays.deepEquals(otherConfig.grid, grid) && otherConfig.frogPositions.equals(frogPositions);
         }
         return false;
     }

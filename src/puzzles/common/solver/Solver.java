@@ -6,6 +6,8 @@ import java.util.LinkedList;
 public class Solver {
     private Configuration start;
     private Configuration end;
+    private int totalConfig = 0;
+    private int uniqueConfig = 0;
 
     /**
      * Create solver for the clock and strings puzzle
@@ -14,11 +16,9 @@ public class Solver {
     public Solver(Configuration start) {
         this.start = start;
     }
-
-    public void solve() {
+    public List<String> solve() {
         List<Configuration> queue = new LinkedList<>();
         Map<Configuration, Configuration> predecessors = new HashMap<>();
-        int totalConfig = 0;
         queue.add(start);
         predecessors.put(start, start);
 
@@ -40,16 +40,26 @@ public class Solver {
             }
         }
 
-        int step = 0;
-        System.out.println("Total configs: " + totalConfig);
-        System.out.println("Unique configs: " + predecessors.size());
+        uniqueConfig = predecessors.size();
         List<String> path = constructPath(predecessors, start, end);
         if (path.size() == 0) {
-            System.out.println("No solution.");
-        } else {
-            for (String s : path) {
+            path.add("No solution.");
+        }
+        return path;
+    }
+
+    public void solveAndPrint() {
+        List<String> path = solve();
+        System.out.println("Total configs: " + totalConfig);
+        System.out.println("Unique configs: " + uniqueConfig);
+
+        int step = 0;
+        for (String s : path) {
+            if (!s.equals("No solution.")) {
                 System.out.println("Step " + step + ": " + s);
                 step++;
+            } else {
+                System.out.println(s);
             }
         }
     }

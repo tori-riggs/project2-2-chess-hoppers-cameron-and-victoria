@@ -1,6 +1,7 @@
 package puzzles.hoppers.model;
 
 import puzzles.common.Observer;
+import puzzles.common.solver.Configuration;
 import puzzles.common.solver.Solver;
 import puzzles.hoppers.solver.Hoppers;
 
@@ -38,11 +39,11 @@ public class HoppersModel {
 
     public void getHint() {
         Solver solver = new Solver(currentConfig);
-        List<String> path = solver.solve();
-        if (!path.isEmpty()) {
-            alertObservers(path.get(0));
+        List<Configuration> path = solver.solve();
+        if (path.isEmpty()) {
+            alertObservers("No solution.");
         } else {
-            alertObservers("No solution!");
+            alertObservers(path.get(1).toString());
         }
     }
 

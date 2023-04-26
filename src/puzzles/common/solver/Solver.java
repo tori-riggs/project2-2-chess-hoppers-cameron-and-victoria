@@ -16,7 +16,7 @@ public class Solver {
     public Solver(Configuration start) {
         this.start = start;
     }
-    public List<String> solve() {
+    public List<Configuration> solve() {
         List<Configuration> queue = new LinkedList<>();
         Map<Configuration, Configuration> predecessors = new HashMap<>();
         queue.add(start);
@@ -41,25 +41,21 @@ public class Solver {
         }
 
         uniqueConfig = predecessors.size();
-        List<String> path = constructPath(predecessors, start, end);
-        if (path.size() == 0) {
-            path.add("No solution.");
-        }
-        return path;
+        return constructPath(predecessors, start, end);
     }
 
     public void solveAndPrint() {
-        List<String> path = solve();
+        List<Configuration> path = solve();
         System.out.println("Total configs: " + totalConfig);
         System.out.println("Unique configs: " + uniqueConfig);
 
         int step = 0;
-        for (String s : path) {
-            if (!s.equals("No solution.")) {
-                System.out.println("Step " + step + ": " + s);
+        if (path.isEmpty()) {
+            System.out.println("No solution.");
+        } else {
+            for (Configuration s : path) {
+                System.out.println("Step " + step + ": " + s.toString());
                 step++;
-            } else {
-                System.out.println(s);
             }
         }
     }
@@ -72,17 +68,17 @@ public class Solver {
      * @param end the goal config
      * @return a path of strings for each config to get to the goal config.
      */
-    public List<String> constructPath(Map<Configuration, Configuration> predMap,
+    private List<Configuration> constructPath(Map<Configuration, Configuration> predMap,
                                       Configuration start, Configuration end) {
-        List<String> path = new LinkedList<>();
+        List<Configuration> path = new LinkedList<>();
 
         if (predMap.containsKey(end)) {
             Configuration curr = end;
             while (!curr.equals(start)) {
-                path.add(0, curr.toString());
+                path.add(0, curr);
                 curr = predMap.get(curr);
             }
-            path.add(0, start.toString());
+            path.add(0, start);
         }
         return path;
     }

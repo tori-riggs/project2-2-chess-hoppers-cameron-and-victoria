@@ -45,6 +45,8 @@ public class HoppersPTUI implements Observer<HoppersModel, String> {
                     break;
                 } else if (words[0].startsWith("l")) {
                     model.load(words[1]);
+                } else if (words[0].startsWith("h")) {
+                    model.getHint();
                 }
                 else {
                     displayHelp();
@@ -58,6 +60,7 @@ public class HoppersPTUI implements Observer<HoppersModel, String> {
             System.out.println("Usage: java HoppersPTUI filename");
         } else {
             try {
+
                 HoppersPTUI ptui = new HoppersPTUI();
                 ptui.init(args[0]);
                 ptui.run();

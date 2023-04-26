@@ -87,16 +87,6 @@ public class ChessConfig implements Configuration {
         board[endRow][endCol] = board[startRow][startCol];
         // original position of piece is empty
         board[startRow][startCol] = EMPTY;
-//        for (int i = 0; i < this.pieces.size(); i++) {
-//            if ((this.pieces.get(i).getRow() == startRow)
-//                    && (this.pieces.get(i).getCol() == startCol)) {
-//                this.pieces.remove(i);
-//            }
-//            if ((this.pieces.get(i).getRow() == endRow)
-//                    && (this.pieces.get(i).getCol() == endCol)) {
-//                this.pieces.get(i).setPiece(board[endRow][endCol]);
-//            }
-//        }
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
                 if (this.board[i][j] != EMPTY) {
@@ -119,10 +109,6 @@ public class ChessConfig implements Configuration {
     @Override
     public Collection<Configuration> getNeighbors() {
         successors = new ArrayList<>();
-        int r = row;
-        int c = col + 1;
-//        if ((row == ROWS - 1) && (this.col == COLS - 1)) {
-//            return successors;
         // Win condition: only one piece on the board
         if (pieces.size() == 1) {
             return successors;
@@ -148,9 +134,12 @@ public class ChessConfig implements Configuration {
                 if (p.getPiece() == KNIGHT) {
                     successors.addAll(knightMoves(p));
                 }
+                if (p.getPiece() == ROOK) {
+                    successors.addAll(rookMoves(p));
+                }
             }
         }
-        return null;
+        return successors;
     }
 
     public Collection<Configuration> pawnMoves(Position p) {
@@ -188,25 +177,24 @@ public class ChessConfig implements Configuration {
         ArrayList<Configuration> moves = new ArrayList<>();
 
         // TODO is it a good idea to have it less than ROWS?
+        // Did we already make a capture in this direction?
+        boolean topLeftCapture = false;
+        boolean topRightCapture = false;
+        boolean bottLeftCapture = false;
+        boolean bottRightCapture = false;
+
         for (int i = 1; i < ROWS; i++) {
             int topRow = p.getRow() - i;
             int leftCol = p.getCol() - i;
             int bottRow = p.getRow() + i;
             int rightCol = p.getCol() + i;
 
-            // Did we already make a capture in this direction?
-            boolean topLeftCapture = false;
-            boolean topRightCapture = false;
-            boolean bottLeftCapture = false;
-            boolean bottRightCapture = false;
-            if (!(topLeftCapture) && isValidPos(topRow, leftCol)) {
-                if (!(board[topRow][leftCol] == EMPTY)
-                        && !((board[topRow][leftCol] == KING))) {
-                    ChessConfig child = new ChessConfig(this, p.getRow(),
-                            p.getCol(), topRow, leftCol);
-                    moves.add(child);
-                    topLeftCapture = true;
-                }
+            if (!(topLeftCapture) && isValidPos(topRow, leftCol)
+                    && isCapture(topRow, leftCol)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), topRow, leftCol);
+                moves.add(child);
+                topLeftCapture = true;
             }
             // going top right
             if (!topRightCapture && isValidPos(topRow, rightCol)) {
@@ -409,6 +397,58 @@ public class ChessConfig implements Configuration {
             ChessConfig child = new ChessConfig(this, p.getRow(),
                     p.getCol(), upOne, leftTwoCol);
             moves.add(child);
+        }
+        return moves;
+    }
+
+    public Collection<Configuration> rookMoves(Position p) {
+        ArrayList<Configuration> moves = new ArrayList<>();
+        // Did we already capture in this direction?
+        boolean captureRight = false;
+        boolean captureLeft = false;
+        boolean captureUp = false;
+        boolean captureDown = false;
+
+        for (int i = 1; i < ROWS; i++) {
+            int upRow = p.getRow() - i;
+            int downRow = p.getRow() + i;
+
+            if (!captureUp && isValidPos(upRow, p.getCol())
+                    && isCapture(upRow, p.getCol())) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), upRow, p.getCol());
+                moves.add(child);
+                captureUp = true;
+            }
+
+            if (!captureDown && isValidPos(downRow, p.getCol())
+                    && isCapture(downRow, p.getCol())) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), downRow, p.getCol());
+                moves.add(child);
+                captureDown = true;
+            }
+        }
+
+        for (int i = 1; i < COLS; i++) {
+            int leftCol = p.getCol() - i;
+            int rightCol = p.getCol() + i;
+
+            if (!captureLeft && isValidPos(p.getRow(), leftCol)
+                    && isCapture(p.getRow(), leftCol)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), p.getRow(), leftCol);
+                moves.add(child);
+                captureLeft = true;
+            }
+
+            if (!captureRight && isValidPos(p.getRow(), rightCol)
+                    && isCapture(p.getRow(), rightCol)) {
+                ChessConfig child = new ChessConfig(this, p.getRow(),
+                        p.getCol(), p.getRow(), rightCol);
+                moves.add(child);
+                captureRight = true;
+            }
         }
         return moves;
     }

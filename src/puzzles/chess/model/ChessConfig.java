@@ -110,7 +110,6 @@ public class ChessConfig implements Configuration {
 //            for (Position p : this.pieces) {
             for (int i = 0; i < pieces.size(); i++) {
                 Position p = pieces.get(i);
-                // TODO COncurrentModificationException
                 if (p.getPiece() == PAWN) {
                     successors.addAll(pawnMoves(p));
                 }

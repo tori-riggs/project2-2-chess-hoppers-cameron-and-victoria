@@ -1,13 +1,14 @@
 package puzzles.common.solver;
 
+import puzzles.chess.model.ChessConfig;
+import puzzles.chess.solver.Chess;
+
 import java.util.*;
 import java.util.LinkedList;
 
 public class Solver {
     private Configuration start;
     private Configuration end;
-    private int totalConfig = 0;
-    private int uniqueConfig = 0;
 
     /**
      * Create solver for the clock and strings puzzle
@@ -16,11 +17,13 @@ public class Solver {
     public Solver(Configuration start) {
         this.start = start;
     }
-    public List<Configuration> solve() {
+
+    public void solve() {
         List<Configuration> queue = new LinkedList<>();
         Map<Configuration, Configuration> predecessors = new HashMap<>();
+        int totalConfig = 0;
         queue.add(start);
-        predecessors.put(start, start);
+        predecessors.put(start, null);
 
         totalConfig++;
         while (!queue.isEmpty()) {
@@ -40,21 +43,15 @@ public class Solver {
             }
         }
 
-        uniqueConfig = predecessors.size();
-        return constructPath(predecessors, start, end);
-    }
-
-    public void solveAndPrint() {
-        List<Configuration> path = solve();
-        System.out.println("Total configs: " + totalConfig);
-        System.out.println("Unique configs: " + uniqueConfig);
-
         int step = 0;
-        if (path.isEmpty()) {
+        System.out.println("Total configs: " + totalConfig);
+        System.out.println("Unique configs: " + predecessors.size());
+        List<String> path = constructPath(predecessors, start, end);
+        if (path.size() == 0) {
             System.out.println("No solution.");
         } else {
-            for (Configuration s : path) {
-                System.out.println("Step " + step + ": " + s.toString());
+            for (String s : path) {
+                System.out.println("Step " + step + ": " + s);
                 step++;
             }
         }
@@ -68,17 +65,21 @@ public class Solver {
      * @param end the goal config
      * @return a path of strings for each config to get to the goal config.
      */
-    private List<Configuration> constructPath(Map<Configuration, Configuration> predMap,
+    public List<String> constructPath(Map<Configuration, Configuration> predMap,
                                       Configuration start, Configuration end) {
-        List<Configuration> path = new LinkedList<>();
-
+        List<String> path = new LinkedList<>();
+        if (end != null) {
+            path.add(end.toString());
+        } else {
+            return path;
+        }
         if (predMap.containsKey(end)) {
             Configuration curr = end;
             while (!curr.equals(start)) {
-                path.add(0, curr);
+                path.add(0, curr.toString());
                 curr = predMap.get(curr);
             }
-            path.add(0, start);
+            path.add(0, start.toString());
         }
         return path;
     }

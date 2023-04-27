@@ -15,7 +15,7 @@ public class Chess {
                 ChessConfig start = new ChessConfig(filename);
                 System.out.println(start.toString());
                 Solver solver = new Solver(start);
-                solver.solve();
+                solver.solveAndPrint();
             } catch (IOException ex) {
                 System.err.println("IOException");
             }

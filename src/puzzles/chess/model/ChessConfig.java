@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 // TODO: implement your ChessConfig for the common solver
 
@@ -557,6 +558,38 @@ public class ChessConfig implements Configuration {
             return true;
         }
         return false;
+    }
+
+    // TODO hash function
+    // TODO equals function
+
+    @Override
+    public boolean equals(Object other) {
+        boolean result = false;
+        if (other instanceof ChessConfig) {
+            ChessConfig o = (ChessConfig) other;
+            for (int i = 0; i < ROWS; i++) {
+                for (int j = 0; j < COLS; j++) {
+                    if (this.board[i][j] == o.board[i][j]) {
+                        result = true;
+                    } else {
+                        result = false;
+                        break;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        for (int i = 0; i < pieces.size(); i++) {
+            Position p = pieces.get(i);
+            hash += p.getRow() + p.getCol() + Character.valueOf(p.getPiece());
+        }
+        return hash;
     }
 
     @Override

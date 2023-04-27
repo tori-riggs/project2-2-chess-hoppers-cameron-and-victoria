@@ -42,7 +42,7 @@ public class Position implements Comparable<Position> {
         // TODO should I also check for the same chess piece?
         if (other instanceof Position) {
             Position o = (Position) other;
-            if ((this.getRow() == o.getRow()) && (this.col == o.col)) {
+            if ((this.getRow() == o.getRow()) && (this.col == o.col) && this.getPiece() == o.getPiece()) {
                 return true;
             }
         }
@@ -51,6 +51,6 @@ public class Position implements Comparable<Position> {
 
     @Override
     public int compareTo(Position other) {
-        return 0;
+        return this.getRow() - other.getRow();
     }
 }

@@ -4,6 +4,7 @@ import puzzles.chess.model.ChessConfig;
 
 import java.io.IOException;
 import puzzles.common.solver.Solver;
+
 public class Chess {
     public static void main(String[] args) {
         if (args.length != 1) {
@@ -14,7 +15,7 @@ public class Chess {
                 ChessConfig start = new ChessConfig(filename);
                 System.out.println(start.toString());
                 Solver solver = new Solver(start);
-                solver.solveAndPrint();
+                solver.solve();
             } catch (IOException ex) {
                 System.err.println("IOException");
             }

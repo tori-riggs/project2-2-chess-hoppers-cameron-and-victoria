@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -37,7 +38,6 @@ public class ChessConfig implements Configuration {
 
             this.board = new char[ROWS][COLS];
             pieces = new ArrayList<>();
-            this.numPieces = 0;
             for (int r = 0; r < ROWS; r++) {
                 line = in.readLine();
                 field = line.split("\\s+");
@@ -64,6 +64,7 @@ public class ChessConfig implements Configuration {
                         board[r][c] = EMPTY;
                     }
                 }
+                this.numPieces = pieces.size();
             }
         } catch (IOException e) {
             System.err.println("IOException");
@@ -105,9 +106,9 @@ public class ChessConfig implements Configuration {
     public Collection<Configuration> getNeighbors() {
         successors = new ArrayList<>();
         // Win condition: only one piece on the board
-        if (pieces.size() == 1) {
-            return successors;
-        } else {
+//        if (pieces.size() == 1) {
+//            return successors;
+//        } else {
 //            for (Position p : this.pieces) {
             for (int i = 0; i < pieces.size(); i++) {
                 Position p = pieces.get(i);
@@ -136,7 +137,7 @@ public class ChessConfig implements Configuration {
                     successors.addAll(queenMoves(p));
                 }
             }
-        }
+//        }
         return successors;
     }
 
@@ -148,7 +149,7 @@ public class ChessConfig implements Configuration {
         int cLeft = p.getCol() - 1;
         int cRight = p.getCol() + 1;
         if (isValidPos(r, cLeft)) {
-            if (!(board[r][cLeft] == EMPTY) && !(board[r][cLeft] == KING)) {
+            if (!(board[r][cLeft] == EMPTY)) {
                 ChessConfig child1 =
                         new ChessConfig(this, p.getRow(),
                                 p.getCol(), r, cLeft);
@@ -156,7 +157,7 @@ public class ChessConfig implements Configuration {
             }
         }
         if (isValidPos(r, cRight)) {
-            if (!(board[r][cRight] == EMPTY) && !(board[r][cRight] == KING)) {
+            if (!(board[r][cRight] == EMPTY)) {
                 ChessConfig child2 =
                         new ChessConfig(this, p.getRow(), p.getCol(), r, cRight);
                 moves.add(child2);
@@ -235,8 +236,7 @@ public class ChessConfig implements Configuration {
         //        for (int i = 1; i < ROWS; i++) {
             // Top left
         if (isValidPos(topRow, leftCol)) {
-            if ((board[topRow][leftCol] != EMPTY)
-                    && (board[topRow][leftCol] != KING)) {
+            if ((board[topRow][leftCol] != EMPTY)) {
                 ChessConfig child = new ChessConfig(this, p.getRow(),
                         p.getCol(), topRow, leftCol);
                 moves.add(child);
@@ -244,8 +244,7 @@ public class ChessConfig implements Configuration {
         }
         // Top
         if (isValidPos(topRow, p.getCol())) {
-            if ((board[topRow][p.getCol()] != EMPTY)
-                    && (board[topRow][p.getCol()] != KING)) {
+            if ((board[topRow][p.getCol()] != EMPTY)) {
                 ChessConfig child = new ChessConfig(this, p.getRow(),
                         p.getCol(), topRow, p.getCol());
                 moves.add(child);
@@ -254,8 +253,7 @@ public class ChessConfig implements Configuration {
 
         // Top right
         if (isValidPos(topRow, rightCol)) {
-            if ((board[topRow][rightCol] != EMPTY)
-                    && (board[topRow][rightCol] != KING)) {
+            if ((board[topRow][rightCol] != EMPTY)) {
                 ChessConfig child = new ChessConfig(this, p.getRow(),
                         p.getCol(), topRow, rightCol);
                 moves.add(child);
@@ -264,8 +262,7 @@ public class ChessConfig implements Configuration {
 
         // Left
         if (isValidPos(p.getRow(), leftCol)) {
-            if ((board[p.getRow()][leftCol] != EMPTY)
-                    && (board[p.getRow()][leftCol] != KING)) {
+            if ((board[p.getRow()][leftCol] != EMPTY)) {
                 ChessConfig child = new ChessConfig(this, p.getRow(),
                         p.getCol(), p.getRow(), leftCol);
                 moves.add(child);
@@ -274,8 +271,7 @@ public class ChessConfig implements Configuration {
 
         // Right
         if (isValidPos(p.getRow(), rightCol)) {
-            if ((board[p.getRow()][rightCol] != EMPTY)
-                    && (board[p.getRow()][rightCol] != KING)) {
+            if ((board[p.getRow()][rightCol] != EMPTY)) {
                 ChessConfig child = new ChessConfig(this, p.getRow(),
                         p.getCol(), p.getRow(), rightCol);
                 moves.add(child);
@@ -284,8 +280,7 @@ public class ChessConfig implements Configuration {
 
         // Down left
         if (isValidPos(bottRow, leftCol)) {
-            if ((board[bottRow][leftCol] != EMPTY)
-                    && (board[bottRow][leftCol] != KING)) {
+            if ((board[bottRow][leftCol] != EMPTY)) {
                 ChessConfig child = new ChessConfig(this, p.getRow(),
                         p.getCol(), bottRow, leftCol);
                 moves.add(child);
@@ -294,8 +289,7 @@ public class ChessConfig implements Configuration {
 
         // Down
         if (isValidPos(bottRow, p.getCol())) {
-            if ((board[bottRow][p.getCol()] != EMPTY)
-                    && (board[bottRow][p.getCol()] != KING)) {
+            if ((board[bottRow][p.getCol()] != EMPTY)) {
                 ChessConfig child = new ChessConfig(this, p.getRow(),
                         p.getCol(), bottRow, p.getCol());
                 moves.add(child);
@@ -304,8 +298,7 @@ public class ChessConfig implements Configuration {
 
         // Down right
         if (isValidPos(bottRow, rightCol)) {
-            if ((board[bottRow][rightCol] != EMPTY)
-                    && (board[bottRow][rightCol] != KING)) {
+            if ((board[bottRow][rightCol] != EMPTY)) {
                 ChessConfig child = new ChessConfig(this, p.getRow(),
                         p.getCol(), bottRow, rightCol);
                 moves.add(child);
@@ -521,7 +514,7 @@ public class ChessConfig implements Configuration {
             }
         }
 
-        for (int i = 0; i < COLS; i++){
+        for (int i = 1; i < COLS; i++){
             int leftCol = p.getCol() - i;
             int rightCol = p.getCol() + i;
 
@@ -554,7 +547,7 @@ public class ChessConfig implements Configuration {
     }
 
     public boolean isCapture(int row, int col) {
-        if ((board[row][col] != EMPTY) && (board[row][col] != KING)) {
+        if ((board[row][col] != EMPTY)) {
             return true;
         }
         return false;
@@ -574,7 +567,7 @@ public class ChessConfig implements Configuration {
                         result = true;
                     } else {
                         result = false;
-                        break;
+                        return result;
                     }
                 }
             }
@@ -584,12 +577,16 @@ public class ChessConfig implements Configuration {
 
     @Override
     public int hashCode() {
-        int hash = 0;
-        for (int i = 0; i < pieces.size(); i++) {
-            Position p = pieces.get(i);
-            hash += p.getRow() + p.getCol() + Character.valueOf(p.getPiece());
-        }
-        return hash;
+//        StringBuilder sb = new StringBuilder();
+//        for (int i = 0; i < pieces.size(); i++) {
+//            Position p = pieces.get(i);
+//            sb.append(p.getPiece());
+////            hash += p.getRow() + p.getCol()
+////                    + Character.valueOf(p.getPiece()) + pieces.size();
+//        }
+//        int hash = sb.hashCode();
+//        int hash = Arrays.deepHashCode(board);
+        return this.toString().hashCode();
     }
 
     @Override

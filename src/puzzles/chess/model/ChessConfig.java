@@ -28,44 +28,41 @@ public class ChessConfig implements Configuration {
     private ArrayList<Position> pieces;
 
     public ChessConfig(String filename) throws IOException {
-        try (BufferedReader in = new BufferedReader(new FileReader(filename))) {
-            String line = in.readLine();
-            String[] field = line.split("\\s+");
-            this.ROWS = Integer.parseInt(field[0]);
-            this.COLS = Integer.parseInt(field[1]);
+        BufferedReader in = new BufferedReader(new FileReader(filename));
+        String line = in.readLine();
+        String[] field = line.split("\\s+");
+        this.ROWS = Integer.parseInt(field[0]);
+        this.COLS = Integer.parseInt(field[1]);
 
-            this.board = new char[ROWS][COLS];
-            pieces = new ArrayList<>();
-            for (int r = 0; r < ROWS; r++) {
-                line = in.readLine();
-                field = line.split("\\s+");
-                for (int c = 0; c < COLS; c++) {
-                    if (field[c].charAt(0) == BISHOP) {
-                        board[r][c] = BISHOP;
-                        pieces.add(new Position(r, c, BISHOP));
-                    } else if (field[c].charAt(0) == KING) {
-                        board[r][c] = KING;
-                        pieces.add(new Position(r, c, KING));
-                    } else if (field[c].charAt(0) == KNIGHT) {
-                        board[r][c] = KNIGHT;
-                        pieces.add(new Position(r, c, KNIGHT));
-                    } else if (field[c].charAt(0) == PAWN) {
-                        board[r][c] = PAWN;
-                        pieces.add(new Position(r, c, PAWN));
-                    } else if (field[c].charAt(0) == QUEEN) {
-                        board[r][c] = QUEEN;
-                        pieces.add(new Position(r, c, QUEEN));
-                    } else if (field[c].charAt(0) == ROOK) {
-                        board[r][c] = ROOK;
-                        pieces.add(new Position(r, c, ROOK));
-                    } else if (field[c].charAt(0) == EMPTY) {
-                        board[r][c] = EMPTY;
-                    }
+        this.board = new char[ROWS][COLS];
+        pieces = new ArrayList<>();
+        for (int r = 0; r < ROWS; r++) {
+            line = in.readLine();
+            field = line.split("\\s+");
+            for (int c = 0; c < COLS; c++) {
+                if (field[c].charAt(0) == BISHOP) {
+                    board[r][c] = BISHOP;
+                    pieces.add(new Position(r, c, BISHOP));
+                } else if (field[c].charAt(0) == KING) {
+                    board[r][c] = KING;
+                    pieces.add(new Position(r, c, KING));
+                } else if (field[c].charAt(0) == KNIGHT) {
+                    board[r][c] = KNIGHT;
+                    pieces.add(new Position(r, c, KNIGHT));
+                } else if (field[c].charAt(0) == PAWN) {
+                    board[r][c] = PAWN;
+                    pieces.add(new Position(r, c, PAWN));
+                } else if (field[c].charAt(0) == QUEEN) {
+                    board[r][c] = QUEEN;
+                    pieces.add(new Position(r, c, QUEEN));
+                } else if (field[c].charAt(0) == ROOK) {
+                    board[r][c] = ROOK;
+                    pieces.add(new Position(r, c, ROOK));
+                } else if (field[c].charAt(0) == EMPTY) {
+                    board[r][c] = EMPTY;
                 }
-                this.numPieces = pieces.size();
             }
-        } catch (IOException e) {
-            System.err.println("IOException");
+            this.numPieces = pieces.size();
         }
     }
 
@@ -572,6 +569,13 @@ public class ChessConfig implements Configuration {
 
     public char getCellPiece(int row, int col) {
         return board[row][col];
+    }
+
+    public boolean isEmpty(int row, int col) {
+        if (board[row][col] == EMPTY) {
+            return true;
+        }
+        return false;
     }
 
     @Override

@@ -50,6 +50,11 @@ public class Position implements Comparable<Position> {
     }
 
     @Override
+    public String toString() {
+        return "(" + row + ", " + col + ")";
+    }
+
+    @Override
     public int compareTo(Position other) {
         return this.getRow() - other.getRow();
     }

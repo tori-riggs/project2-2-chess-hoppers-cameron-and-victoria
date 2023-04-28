@@ -19,6 +19,7 @@ public class ChessPTUI implements Observer<ChessModel, String> {
         this.filename = filename;
         this.model = new ChessModel(filename);
         this.model.addObserver(this);
+        model.load(filename);
         displayHelp();
     }
 
@@ -39,7 +40,7 @@ public class ChessPTUI implements Observer<ChessModel, String> {
 
     public void run() {
         Scanner in = new Scanner( System.in );
-        for (int i = 0; i < 2; i++) {
+        for (; ;) {
             System.out.print( "> " );
             String line = in.nextLine();
             String[] words = line.split( "\\s+" );

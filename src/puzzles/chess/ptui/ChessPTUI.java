@@ -1,15 +1,22 @@
 package puzzles.chess.ptui;
 
+import javafx.geometry.Pos;
 import puzzles.common.Observer;
 import puzzles.chess.model.ChessModel;
+import puzzles.chess.model.Position;
 
 import java.io.IOException;
 import java.util.Scanner;
 
 public class ChessPTUI implements Observer<ChessModel, String> {
     private ChessModel model;
+//    private Position currSelection;
+//    private boolean cellSelected;
+//    private Position selectedCellEnd;
+    private String filename;
 
     public void init(String filename) throws IOException {
+        this.filename = filename;
         this.model = new ChessModel(filename);
         this.model.addObserver(this);
         displayHelp();
@@ -32,15 +39,33 @@ public class ChessPTUI implements Observer<ChessModel, String> {
 
     public void run() {
         Scanner in = new Scanner( System.in );
-        for ( ; ; ) {
+        for (int i = 0; i < 2; i++) {
             System.out.print( "> " );
             String line = in.nextLine();
             String[] words = line.split( "\\s+" );
             if (words.length > 0) {
                 if (words[0].startsWith( "q" )) {
                     break;
-                }
-                else {
+                } else if (words[0].startsWith("h")) {
+                    model.hint();
+                } else if (words[0].startsWith("l")) {
+                    // TODO no file specified
+                    // TODO update filename?
+                    model.load(words[1]);
+                } else if (words[0].startsWith("s")) {
+                    // TODO no cell given
+//                    if (!cellSelected) {
+//                        currSelection = new Position(words[1], words[2]);
+//                        cellSelected = true;
+//                    } else {
+//                        selectedCellEnd = new Position(words[1], words[2]);
+//                        cellSelected = false;
+//                    }
+                    model.select(Integer.parseInt(words[1]),
+                            Integer.parseInt(words[2]));
+                } else if (words[0].startsWith("r")) {
+                    model.reset();
+                } else {
                     displayHelp();
                 }
             }

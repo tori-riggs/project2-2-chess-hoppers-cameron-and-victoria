@@ -12,8 +12,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 
-// TODO: implement your ChessConfig for the common solver
-
 public class ChessConfig implements Configuration {
     public static char BISHOP = 'B';
     public static char KING = 'K';
@@ -553,9 +551,6 @@ public class ChessConfig implements Configuration {
         return false;
     }
 
-    // TODO hash function
-    // TODO equals function
-
     @Override
     public boolean equals(Object other) {
         boolean result = false;
@@ -575,17 +570,12 @@ public class ChessConfig implements Configuration {
         return result;
     }
 
+    public char getCellPiece(int row, int col) {
+        return board[row][col];
+    }
+
     @Override
     public int hashCode() {
-//        StringBuilder sb = new StringBuilder();
-//        for (int i = 0; i < pieces.size(); i++) {
-//            Position p = pieces.get(i);
-//            sb.append(p.getPiece());
-////            hash += p.getRow() + p.getCol()
-////                    + Character.valueOf(p.getPiece()) + pieces.size();
-//        }
-//        int hash = sb.hashCode();
-//        int hash = Arrays.deepHashCode(board);
         return this.toString().hashCode();
     }
 

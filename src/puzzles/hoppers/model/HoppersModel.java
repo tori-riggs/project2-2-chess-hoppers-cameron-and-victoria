@@ -4,13 +4,24 @@ import puzzles.common.Coordinates;
 import puzzles.common.Observer;
 import puzzles.common.solver.Configuration;
 import puzzles.common.solver.Solver;
-import puzzles.hoppers.solver.Hoppers;
 
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 public class HoppersModel {
+    private final static String MADE_MOVE = "Jumped from %1$s to %2$s";
+    private final static String SELECTED = "Selected %1$s";
+    private final  static String INVALID_SELECT = "No frog at %1$s";
+    private final static String INVALID_MOVE = "Can't jump from %1$s to %2$s.";
+    private final static String LOADED_FILE = "Loaded: %1$s";
+    private final static String FAILED_LOADING = "Failed to load: %1$s";
+    private final static String NO_SOLUTION = "No solution.";
+    private final static String NEXT_STEP = "Next step!";
+
+    public final static String RESET = "Puzzle reset!";
+
+
     /** the collection of observers of this model */
     private final List<Observer<HoppersModel, String>> observers = new LinkedList<>();
 
@@ -20,6 +31,7 @@ public class HoppersModel {
     private String currentFileName;
 
     private Coordinates currentSelection = null;
+    private Coordinates lastSelection = null;
 
     /**
      * The view calls this to add itself as an observer.
@@ -34,41 +46,58 @@ public class HoppersModel {
         try {
             currentConfig = new HoppersConfig(filename);
             currentFileName = filename;
-            alertObservers("Successfully loaded file: " + filename);
+            alertObservers(String.format(LOADED_FILE, filename));
         } catch (IOException e) {
-            alertObservers("Could not find file " + filename + ", returning to previously loaded file");
+            alertObservers(String.format(FAILED_LOADING, filename));
+        }
+    }
+
+    public void reset() {
+        try {
+            currentConfig = new HoppersConfig(currentFileName);
+            currentSelection = null;
+            lastSelection = null;
+            alertObservers(RESET);
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
         }
     }
 
     public void getHint() {
         Solver solver = new Solver(currentConfig);
         List<Configuration> path = solver.solve();
-        if (path.isEmpty()) {
-            alertObservers("No solution.");
+        if (path.size() <= 1) {
+            alertObservers(NO_SOLUTION);
         } else {
-            alertObservers(path.get(1).toString());
+            currentConfig = (HoppersConfig) path.get(1);
+            alertObservers(NEXT_STEP);
         }
     }
 
+    public HoppersConfig getCurrentConfig() {
+        return currentConfig;
+    }
+
     public void select(int row, int col) {
-            char gridAt = currentConfig.getGrid()[row][col];
-            if (currentSelection == null) {
-                if (gridAt != HoppersConfig.EMPTY) {
-                    currentSelection = new Coordinates(row, col);
-                    alertObservers("Selected (" + row + ", " + col + ")" + currentConfig.prettyToString());
-                    return;
-                }
+        char gridAt = currentConfig.getGrid()[row][col];
+        if (currentSelection == null) {
+            currentSelection = new Coordinates(row, col);
+            if (gridAt != HoppersConfig.EMPTY && gridAt != HoppersConfig.INVALID) {
+                alertObservers(String.format(SELECTED, currentSelection));
             } else {
-                if (currentConfig.makeMove(currentSelection.row(), currentSelection.col(), row, col)) {
-                    alertObservers("Jumped from " + currentSelection + " to (" + row + ", " + col + ")" +
-                            currentConfig.prettyToString());
-                } else {
-                    alertObservers("Invalid Move!" + currentConfig.prettyToString());
-                }
+                alertObservers(String.format(INVALID_SELECT, currentSelection));
                 currentSelection = null;
-                return;
             }
-        alertObservers("No frog at (" + row + ", " + col + ")" + currentConfig.prettyToString());
+            lastSelection = currentSelection;
+        } else {
+            currentSelection = new Coordinates(row, col);
+            if (currentConfig.makeMove(lastSelection.row(), lastSelection.col(), row, col)) {
+                alertObservers(String.format(MADE_MOVE, lastSelection, currentSelection));
+            } else {
+                alertObservers(String.format(INVALID_MOVE, lastSelection, currentSelection));
+            }
+            currentSelection = null;
+        }
     }
 
     /**

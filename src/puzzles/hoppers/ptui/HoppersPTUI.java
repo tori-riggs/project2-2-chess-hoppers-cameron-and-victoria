@@ -2,24 +2,27 @@ package puzzles.hoppers.ptui;
 
 import puzzles.common.Observer;
 import puzzles.hoppers.model.HoppersModel;
-import puzzles.chess.ptui.ChessPTUI;
 
 import java.io.IOException;
 import java.util.Scanner;
 
 public class HoppersPTUI implements Observer<HoppersModel, String> {
     private HoppersModel model;
+    private boolean initialized = false;
 
     public void init(String filename) throws IOException {
         this.model = new HoppersModel(filename);
         this.model.addObserver(this);
+        this.initialized = true;
+        this.model.load(filename);
         displayHelp();
     }
 
     @Override
     public void update(HoppersModel model, String data) {
-        // for demonstration purposes
+        if (!initialized) return;
         System.out.println(data);
+        System.out.println(model.getCurrentConfig().prettyToString());
     }
 
     private void displayHelp() {
@@ -28,10 +31,6 @@ public class HoppersPTUI implements Observer<HoppersModel, String> {
         System.out.println( "s(elect) r c        -- select cell at r, c" );
         System.out.println( "q(uit)              -- quit the game" );
         System.out.println( "r(eset)             -- reset the current game" );
-    }
-
-    private void hint() {
-        System.out.println();
     }
 
     public void run() {
@@ -49,6 +48,8 @@ public class HoppersPTUI implements Observer<HoppersModel, String> {
                     model.getHint();
                 } else if (words[0].startsWith("s")) {
                     model.select(Integer.parseInt(words[1]), Integer.parseInt(words[2]));
+                } else if (words[0].startsWith("r")) {
+                    model.reset();
                 }
                 else {
                     displayHelp();

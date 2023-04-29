@@ -18,6 +18,7 @@ public class HoppersConfig implements Configuration{
     public final static char EMPTY = '.';
     public final static char RED_FROG = 'R';
     public final static char GREEN_FROG = 'G';
+    public final static char INVALID = '*';
     private static int rows;
     private static int columns;
     private final char[][] grid;

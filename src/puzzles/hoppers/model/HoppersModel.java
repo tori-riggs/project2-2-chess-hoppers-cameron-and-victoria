@@ -1,5 +1,6 @@
 package puzzles.hoppers.model;
 
+import puzzles.common.Coordinates;
 import puzzles.common.Observer;
 import puzzles.common.solver.Configuration;
 import puzzles.common.solver.Solver;
@@ -17,6 +18,8 @@ public class HoppersModel {
     private HoppersConfig currentConfig;
 
     private String currentFileName;
+
+    private Coordinates currentSelection = null;
 
     /**
      * The view calls this to add itself as an observer.
@@ -45,6 +48,27 @@ public class HoppersModel {
         } else {
             alertObservers(path.get(1).toString());
         }
+    }
+
+    public void select(int row, int col) {
+            char gridAt = currentConfig.getGrid()[row][col];
+            if (currentSelection == null) {
+                if (gridAt != HoppersConfig.EMPTY) {
+                    currentSelection = new Coordinates(row, col);
+                    alertObservers("Selected (" + row + ", " + col + ")" + currentConfig.prettyToString());
+                    return;
+                }
+            } else {
+                if (currentConfig.makeMove(currentSelection.row(), currentSelection.col(), row, col)) {
+                    alertObservers("Jumped from " + currentSelection + " to (" + row + ", " + col + ")" +
+                            currentConfig.prettyToString());
+                } else {
+                    alertObservers("Invalid Move!" + currentConfig.prettyToString());
+                }
+                currentSelection = null;
+                return;
+            }
+        alertObservers("No frog at (" + row + ", " + col + ")" + currentConfig.prettyToString());
     }
 
     /**

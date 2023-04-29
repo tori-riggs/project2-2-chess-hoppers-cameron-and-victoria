@@ -7,8 +7,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.FileChooser;
 import puzzles.common.Observer;
 import puzzles.hoppers.model.HoppersConfig;
 import puzzles.hoppers.model.HoppersModel;
@@ -16,9 +18,14 @@ import puzzles.hoppers.model.HoppersModel;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Objects;
 
+/**
+ *
+ */
 public class HoppersGUI extends Application implements Observer<HoppersModel, String> {
     /** The size of all icons, in square dimension */
     private final static int ICON_SIZE = 75;
@@ -27,24 +34,32 @@ public class HoppersGUI extends Application implements Observer<HoppersModel, St
 
     /** The resources directory is located directly underneath the gui package */
     private final static String RESOURCES_DIR = "resources/";
-
-    // for demonstration purposes
+    private final static String REMOVE_FROM_PATH = "C:\\Users\\dontg\\Documents\\project2-2-chess-hoppers-cameron-and-victoria\\";
     private final Image redFrog = new Image(Objects.requireNonNull(getClass().getResourceAsStream(RESOURCES_DIR + "red_frog.png")));
     private final Image greenFrog = new Image(Objects.requireNonNull(getClass().getResourceAsStream(RESOURCES_DIR + "green_frog.png")));
     private final Image lilyPad = new Image(Objects.requireNonNull(getClass().getResourceAsStream(RESOURCES_DIR + "lily_pad.png")));
     private final Image water = new Image(Objects.requireNonNull(getClass().getResourceAsStream(RESOURCES_DIR + "water.png")));
     private HoppersModel model;
-    private Button[][] buttonGrid;
+    private VBox root;
+    private GridPane gridPane;
+    private FileChooser fileChooser;
     private Label messageLabel = new Label();
     private Stage stage;
 
+    /**
+     * Initializes the gui by creating the model and adding the gui as an observer
+     * @throws IOException
+     */
     public void init() throws IOException {
         String filename = getParameters().getRaw().get(0);
         this.model = new HoppersModel(filename);
         this.model.addObserver(this);
-        this.buttonGrid = new Button[model.getCurrentConfig().getRows()][model.getCurrentConfig().getColumns()];
     }
 
+    /**
+     * Make a grid of buttons to represent the current model's grid
+     * @return a GridPane representing the current model's grid
+     */
     private GridPane makeGrid() {
         GridPane pane = new GridPane();
         int rows = model.getCurrentConfig().getRows();
@@ -64,22 +79,46 @@ public class HoppersGUI extends Application implements Observer<HoppersModel, St
                     case HoppersConfig.GREEN_FROG -> currentButton.setGraphic(new ImageView(greenFrog));
                     case HoppersConfig.EMPTY -> currentButton.setGraphic(new ImageView(lilyPad));
                 }
-                buttonGrid[r][c] = currentButton;
                 pane.add(currentButton, c, r);
             }
         }
         return pane;
     }
 
+    /**
+     * Make the load, reset, and hint buttons and put them in a hbox
+     * @return An Hbox holding the load, reset and hint buttons
+     */
+    private HBox makeLowerButtons() {
+        Button loadButton = new Button("Load");
+        loadButton.setOnAction(e -> {
+            model.load(fileChooser.showOpenDialog(stage).getPath().replace(REMOVE_FROM_PATH, ""));
+        });
+        Button resetButton = new Button("Reset");
+        resetButton.setOnAction(e -> model.reset());
+        Button hintButton = new Button("Hint");
+        hintButton.setOnAction(e -> model.getHint());
+
+        return new HBox(loadButton, resetButton, hintButton);
+    }
+
     @Override
     public void start(Stage stage) throws Exception {
         this.stage = stage;
-        GridPane grid = makeGrid();
+        gridPane = makeGrid();
         messageLabel = new Label("Loaded: " + getParameters().getRaw().get(0));
         messageLabel.setTextAlignment(TextAlignment.CENTER);
-        VBox vBox = new VBox(messageLabel, grid);
-        vBox.setAlignment(Pos.CENTER);
-        Scene scene = new Scene(vBox);
+        HBox lowerButtons = makeLowerButtons();
+        lowerButtons.setAlignment(Pos.CENTER);
+
+        fileChooser = new FileChooser();
+        String currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
+        currentPath += File.separator + "data" + File.separator + "hoppers";
+        fileChooser.setInitialDirectory(new File(currentPath));
+
+        root = new VBox(messageLabel, gridPane, lowerButtons);
+        root.setAlignment(Pos.CENTER);
+        Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.setTitle("Hoppers GUI");
         stage.show();
@@ -88,19 +127,16 @@ public class HoppersGUI extends Application implements Observer<HoppersModel, St
     @Override
     public void update(HoppersModel hoppersModel, String msg) {
         messageLabel.setText(msg);
-        for (int r = 0; r < buttonGrid.length; r++) {
-            for (int c = 0; c < buttonGrid[r].length; c++) {
-                switch (model.getCurrentConfig().getGrid()[r][c]) {
-                    case HoppersConfig.INVALID -> buttonGrid[r][c].setGraphic(new ImageView(water));
-                    case HoppersConfig.RED_FROG -> buttonGrid[r][c].setGraphic(new ImageView(redFrog));
-                    case HoppersConfig.GREEN_FROG -> buttonGrid[r][c].setGraphic(new ImageView(greenFrog));
-                    case HoppersConfig.EMPTY -> buttonGrid[r][c].setGraphic(new ImageView(lilyPad));
-                }
-            }
-        }
+        root.getChildren().remove(gridPane);
+        gridPane = makeGrid();
+        root.getChildren().add(1, gridPane);
         this.stage.sizeToScene();  // when a different sized puzzle is loaded
     }
 
+    /**
+     * Launch the gui
+     * @param args java HoppersPTUI filename
+     */
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("Usage: java HoppersPTUI filename");

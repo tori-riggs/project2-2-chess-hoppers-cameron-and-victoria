@@ -42,6 +42,10 @@ public class HoppersModel {
         this.observers.add(observer);
     }
 
+    /**
+     * Load a hoppers input file into a new config and set it as the current one
+     * @param filename the name of the file to load
+     */
     public void load(String filename) {
         try {
             currentConfig = new HoppersConfig(filename);
@@ -52,6 +56,9 @@ public class HoppersModel {
         }
     }
 
+    /**
+     * Reset the model back to the original file's state
+     */
     public void reset() {
         try {
             currentConfig = new HoppersConfig(currentFileName);
@@ -63,6 +70,9 @@ public class HoppersModel {
         }
     }
 
+    /**
+     * Find the correct next move
+     */
     public void getHint() {
         Solver solver = new Solver(currentConfig);
         List<Configuration> path = solver.solve();
@@ -74,10 +84,19 @@ public class HoppersModel {
         }
     }
 
+    /**
+     * Getter for the current config
+     * @return the model's current config
+     */
     public HoppersConfig getCurrentConfig() {
         return currentConfig;
     }
 
+    /**
+     * Select a position in the grid. If there is already one selected, attempt to move it to the new position selected
+     * @param row the row of the position to select
+     * @param col the column of the position to select
+     */
     public void select(int row, int col) {
         char gridAt = currentConfig.getGrid()[row][col];
         if (currentSelection == null) {
@@ -110,6 +129,11 @@ public class HoppersModel {
         }
     }
 
+    /**
+     * Create a hoppers model with a specified file to start with
+     * @param filename the name of the file to load first
+     * @throws IOException
+     */
     public HoppersModel(String filename) throws IOException {
         this.currentFileName = filename;
         this.currentConfig = new HoppersConfig(currentFileName);

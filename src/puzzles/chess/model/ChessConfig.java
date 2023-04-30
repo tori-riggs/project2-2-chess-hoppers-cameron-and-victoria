@@ -578,6 +578,18 @@ public class ChessConfig implements Configuration {
         return false;
     }
 
+    public ArrayList<Position> getPieces() {
+        return pieces;
+    }
+
+    public int getRows() {
+        return ROWS;
+    }
+
+    public int getCols() {
+        return COLS;
+    }
+
     @Override
     public int hashCode() {
         return this.toString().hashCode();

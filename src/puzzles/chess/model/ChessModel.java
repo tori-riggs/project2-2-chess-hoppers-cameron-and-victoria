@@ -50,8 +50,12 @@ public class ChessModel {
             alertObservers("No solution.");
         } else {
             // get next part of solution
-            currentConfig = (ChessConfig) path.get(1);
-            alertObservers("Next step!");
+            if (!path.isEmpty()) {
+                currentConfig = (ChessConfig) path.get(1);
+                alertObservers("Next step!");
+            } else {
+                alertObservers("Already solved!");
+            }
         }
     }
 
@@ -122,6 +126,26 @@ public class ChessModel {
         }
     }
 
+    public ArrayList<Position> getPieces() {
+        return currentConfig.getPieces();
+    }
+
+    public int getRows() {
+        return currentConfig.getRows();
+    }
+
+    public int getCols() {
+        return currentConfig.getCols();
+    }
+
+    public char getCellPiece(int row, int col) {
+        return currentConfig.getCellPiece(row, col);
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
     public String toString() {
         // TODO chess borders
         return currentConfig.toString();
@@ -135,6 +159,10 @@ public class ChessModel {
         for (var observer : observers) {
             observer.update(this, data);
         }
+    }
+
+    public ChessConfig getCurrentConfig() {
+        return currentConfig;
     }
 
     public ChessModel(String filename) throws IOException {

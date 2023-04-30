@@ -15,9 +15,10 @@ import java.util.*;
  * @author Cameron Wilson
  */
 public class HoppersConfig implements Configuration{
-    private final static char EMPTY = '.';
-    private final static char RED_FROG = 'R';
-    private final static char GREEN_FROG = 'G';
+    public final static char EMPTY = '.';
+    public final static char RED_FROG = 'R';
+    public final static char GREEN_FROG = 'G';
+    public final static char INVALID = '*';
     private static int rows;
     private static int columns;
     private final char[][] grid;
@@ -59,6 +60,30 @@ public class HoppersConfig implements Configuration{
         for (int i = 0; i < rows; i++) {
             this.grid[i] = Arrays.copyOf(other.grid[i], columns);
         }
+    }
+
+    /**
+     * Getter for the grid
+     * @return this config's grid
+     */
+    public char[][] getGrid() {
+        return grid;
+    }
+
+    /**
+     * Getter for the row count
+     * @return this config's columns
+     */
+    public int getRows() {
+        return rows;
+    }
+
+    /**
+     * Getter for the column count
+     * @return this config's rows
+     */
+    public int getColumns() {
+        return columns;
     }
 
     /**
@@ -119,6 +144,70 @@ public class HoppersConfig implements Configuration{
             builder.append("\n");
         }
         return builder.toString();
+    }
+
+    /**
+     * Returns a string version of this config with row and column numbers
+     * @return A string representing the grid of this config with row and column numbers
+     */
+    public String prettyToString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("\n").append("  ");
+
+        for (int i = 0; i < columns; i++) {
+            builder.append(i);
+        }
+
+        builder.append("\n").append("  ").append("-".repeat(Math.max(0, columns))).append("\n");
+
+        int rowCount = 0;
+        for (char[] arr : grid) {
+            builder.append(rowCount++).append("|").append(arr).append("\n");
+        }
+        return builder.toString();
+    }
+
+    /**
+     * Moves a frog from one space to another, gives information back based on it's success
+     * @param rowFrom the row to move from
+     * @param colFrom the column to move from
+     * @param rowTo the row to move to
+     * @param colTo the column to move to
+     * @return whether the move was legal and successful
+     */
+    public boolean makeMove(int rowFrom, int colFrom, int rowTo, int colTo) {
+        //both are in bounds
+        if (rowFrom >= 0 && rowFrom < rows && colFrom >= 0 && colFrom < columns && rowTo >= 0 &&
+                rowTo < rows && colTo >= 0 && colTo < columns) {
+            //the move to should be empty
+            if (grid[rowTo][colTo] == EMPTY) {
+                //Distance between row or col are greater than one for all valid moves, aka no direct neighbor moves
+                if (Math.abs(rowFrom - rowTo) > 1 || Math.abs(colFrom - colTo) > 1) {
+                    int rowBetween = (rowTo + rowFrom) / 2;
+                    int colBetween = (colTo + colFrom) / 2;
+
+                    if ((colFrom == colTo || rowFrom == rowTo)) {
+                        if (!(grid[rowBetween][colBetween] == GREEN_FROG &&
+                                rowFrom % 2 == 0)) {
+                            return false;
+                        }
+                    } else {
+                        if (!(grid[rowBetween][colBetween] == GREEN_FROG)) {
+                            return false;
+                        }
+                    }
+                    char temp = grid[rowFrom][colFrom];
+                    grid[rowFrom][colFrom] = EMPTY;
+                    grid[rowBetween][colBetween] = EMPTY;
+                    frogPositions.remove(new Coordinates(rowBetween, colBetween));
+                    frogPositions.add(new Coordinates(rowTo, colTo));
+                    frogPositions.remove(new Coordinates(rowFrom, colFrom));
+                    grid[rowTo][colTo] = temp;
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

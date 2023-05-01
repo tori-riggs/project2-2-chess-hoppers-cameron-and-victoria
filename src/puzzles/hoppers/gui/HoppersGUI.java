@@ -93,7 +93,10 @@ public class HoppersGUI extends Application implements Observer<HoppersModel, St
     private HBox makeLowerButtons() {
         Button loadButton = new Button("Load");
         loadButton.setOnAction(e -> {
-            model.load(fileChooser.showOpenDialog(stage).getPath().replace(currentPath + File.separator, ""));
+            File file = fileChooser.showOpenDialog(stage);
+            if (file != null) {
+                model.load(fileChooser.showOpenDialog(stage).getPath().replace(currentPath + File.separator, ""));
+            }
         });
         Button resetButton = new Button("Reset");
         resetButton.setOnAction(e -> model.reset());

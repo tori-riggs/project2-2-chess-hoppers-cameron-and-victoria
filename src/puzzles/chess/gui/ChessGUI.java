@@ -33,7 +33,6 @@ public class ChessGUI extends Application implements Observer<ChessModel, String
 
     private Stage stage;
     private BorderPane gameLayout;
-//    private FileChooser fileChooser;
 
     /** The resources directory is located directly underneath the gui package */
     private final static String RESOURCES_DIR = "resources/";
@@ -54,8 +53,6 @@ public class ChessGUI extends Application implements Observer<ChessModel, String
             new Background( new BackgroundFill(Color.MIDNIGHTBLUE, null, null));
     private Label gameMessage;
     private String filename;
-    private String currentPath;
-    private FileChooser chooser;
 
     /**
      *
@@ -86,10 +83,6 @@ public class ChessGUI extends Application implements Observer<ChessModel, String
         this.gameMessage = new Label("Loaded: " + filename);
         this.gameLayout = makeGameLayout();
         gameMessage.setAlignment(Pos.TOP_CENTER);
-        this.chooser = new FileChooser();
-        this.currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
-        currentPath += File.separator + "data" + File.separator + "chess";
-        chooser.setInitialDirectory(new File(currentPath));
         Scene scene = new Scene(gameLayout);
         stage.setTitle("Chess");
         stage.setScene(scene);
@@ -137,7 +130,17 @@ public class ChessGUI extends Application implements Observer<ChessModel, String
         Button reset = new Button("Reset");
         Button hint = new Button("Hint");
         buttonBox.getChildren().addAll(load, reset, hint);
+
+
+        FileChooser chooser = new FileChooser();
+        String currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
+//        currentPath += File.separator + "data" + File.separator + "chess";
+        String datapath = currentPath + File.separator + "data" + File.separator + "chess";
+//        chooser.setInitialDirectory(new File(currentPath));
+        chooser.setInitialDirectory(new File(datapath));
+//        load.setOnAction(event -> model.load(chooser.showOpenDialog(stage).getPath()));
         load.setOnAction(event -> model.load(chooser.showOpenDialog(stage).getPath().replace(currentPath + File.separator, "")));
+
         reset.setOnAction(event -> model.reset());
         hint.setOnAction(event -> {
             if (model.getPieces().size() == 1) {

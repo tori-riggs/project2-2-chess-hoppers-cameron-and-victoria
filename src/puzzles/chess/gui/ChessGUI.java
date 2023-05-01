@@ -11,6 +11,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import puzzles.chess.model.ChessConfig;
 import puzzles.chess.model.Position;
@@ -30,6 +31,7 @@ public class ChessGUI extends Application implements Observer<ChessModel, String
 
     private Stage stage;
     private BorderPane gameLayout;
+    private FileChooser fileChooser;
 
     /** The resources directory is located directly underneath the gui package */
     private final static String RESOURCES_DIR = "resources/";
@@ -51,6 +53,10 @@ public class ChessGUI extends Application implements Observer<ChessModel, String
     private Label gameMessage;
     private String filename;
 
+    /**
+     *
+     * @throws IOException
+     */
     @Override
     public void init() throws IOException {
         // get the file name from the command line
@@ -59,13 +65,23 @@ public class ChessGUI extends Application implements Observer<ChessModel, String
         model.addObserver(this);
     }
 
+    /**
+     *
+     * @param stage the primary stage for this application, onto which
+     * the application scene can be set.
+     * Applications may create other stages, if needed, but they will not be
+     * primary stages.
+     * @throws Exception
+     */
     @Override
     public void start(Stage stage) throws Exception {
         this.stage = stage;
 //        Scene scene = new Scene(button);
         this.filename = model.getFilename();
+        this.fileChooser = new FileChooser();
+        this.gameMessage = new Label("Loaded" + filename);
         this.gameLayout = makeGameLayout();
-
+        gameMessage.setAlignment(Pos.TOP_CENTER);
         Scene scene = new Scene(gameLayout);
         stage.setTitle("Chess");
         stage.setScene(scene);
@@ -73,12 +89,13 @@ public class ChessGUI extends Application implements Observer<ChessModel, String
 
     }
 
-
+    /**
+     *
+     * @return
+     */
     private BorderPane makeGameLayout() {
         BorderPane borderPane = new BorderPane();
         // Top
-        this.gameMessage = new Label();
-        gameMessage.setAlignment(Pos.TOP_CENTER);
         BorderPane topPane = new BorderPane();
         topPane.setCenter(gameMessage);
         borderPane.setTop(topPane);
@@ -87,19 +104,48 @@ public class ChessGUI extends Application implements Observer<ChessModel, String
 
         // Bottom
         BorderPane bottomPane = new BorderPane();
+        HBox buttonBox = makeButtons();
+        buttonBox.setAlignment(Pos.CENTER);
+//        buttonBox.setAlignment(Pos.CENTER);
+//        Button load = new Button("Load");
+//        Button reset = new Button("Reset");
+//        Button hint = new Button("Hint");
+//        buttonBox.getChildren().addAll(load, reset, hint);
+//        load.setOnAction(event -> model.load(filename));
+//        hint.setOnAction(event -> model.hint());
+        bottomPane.setCenter(buttonBox);
+        borderPane.setBottom(bottomPane);
+        return borderPane;
+    }
+
+    /**
+     *
+     * @return
+     */
+    private HBox makeButtons() {
         HBox buttonBox = new HBox();
         buttonBox.setAlignment(Pos.CENTER);
         Button load = new Button("Load");
         Button reset = new Button("Reset");
         Button hint = new Button("Hint");
         buttonBox.getChildren().addAll(load, reset, hint);
-        load.setOnAction(event -> model.load(filename));
-        hint.setOnAction(event -> model.hint());
-        bottomPane.setCenter(buttonBox);
-        borderPane.setBottom(bottomPane);
-        return borderPane;
+        load.setOnAction(event -> model.load(fileChooser.showOpenDialog(stage).getPath()));
+        reset.setOnAction(event -> model.reset());
+        hint.setOnAction(event -> {
+            if (model.getPieces().size() == 1) {
+                gameMessage.setText("Already solved!");
+                hint.disableProperty();
+            } else {
+                model.hint();
+            }
+        });
+        return buttonBox;
     }
 
+    /**
+     *
+     * @return
+     */
     private GridPane chessBoard() {
         GridPane board = new GridPane();
         for (int r = 0; r < model.getRows(); r++) {
@@ -113,6 +159,9 @@ public class ChessGUI extends Application implements Observer<ChessModel, String
                 } else {
                     button.setBackground(DARK);
                 }
+                int finalR = r;
+                int finalC = c;
+                button.setOnAction(e -> model.select(finalR, finalC));
                 button.setMinSize(ICON_SIZE, ICON_SIZE);
                 button.setMaxSize(ICON_SIZE, ICON_SIZE);
                 button.setAlignment(Pos.CENTER);
@@ -127,6 +176,12 @@ public class ChessGUI extends Application implements Observer<ChessModel, String
         return board;
     }
 
+    /**
+     *
+     * @param button
+     * @param row
+     * @param col
+     */
     private void setPieceGraphic(Button button, int row, int col) {
         if (model.getCellPiece(row, col) == ChessConfig.BISHOP) {
             button.setGraphic(new ImageView(bishop));
@@ -146,9 +201,9 @@ public class ChessGUI extends Application implements Observer<ChessModel, String
     @Override
     public void update(ChessModel chessModel, String msg) {
         gameMessage.setText(msg);
-        gameLayout.setCenter(makeGameLayout());
+        gameLayout.setCenter(chessBoard());
         this.stage.sizeToScene();  // when a different sized puzzle is loaded
-        if (msg.equals("Already solved!")) {
+        if (model.getPieces().size() == 1) {
             gameMessage.setText(msg);
         }
     }

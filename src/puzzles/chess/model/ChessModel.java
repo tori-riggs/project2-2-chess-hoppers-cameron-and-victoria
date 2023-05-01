@@ -53,7 +53,7 @@ public class ChessModel {
             if (!path.isEmpty()) {
                 currentConfig = (ChessConfig) path.get(1);
                 alertObservers("Next step!");
-            } else {
+            } else if (getPieces().size() == 1) {
                 alertObservers("Already solved!");
             }
         }
@@ -99,7 +99,8 @@ public class ChessModel {
 
                 boolean valid = false;
                 for (Configuration c : validMoves) {
-                    if (endConfig.equals(c)) {
+                    if (endConfig.equals(c)
+                            && !(currSelection.equals(endCell))) {
                         valid = true;
                         currentConfig = endConfig;
                         alertObservers("Captured from "

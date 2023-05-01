@@ -34,7 +34,6 @@ public class HoppersGUI extends Application implements Observer<HoppersModel, St
 
     /** The resources directory is located directly underneath the gui package */
     private final static String RESOURCES_DIR = "resources/";
-    private final static String REMOVE_FROM_PATH = "C:\\Users\\dontg\\Documents\\project2-2-chess-hoppers-cameron-and-victoria\\";
     private final Image redFrog = new Image(Objects.requireNonNull(getClass().getResourceAsStream(RESOURCES_DIR + "red_frog.png")));
     private final Image greenFrog = new Image(Objects.requireNonNull(getClass().getResourceAsStream(RESOURCES_DIR + "green_frog.png")));
     private final Image lilyPad = new Image(Objects.requireNonNull(getClass().getResourceAsStream(RESOURCES_DIR + "lily_pad.png")));
@@ -43,6 +42,8 @@ public class HoppersGUI extends Application implements Observer<HoppersModel, St
     private VBox root;
     private GridPane gridPane;
     private FileChooser fileChooser;
+
+    private String currentPath;
     private Label messageLabel = new Label();
     private Stage stage;
 
@@ -92,7 +93,7 @@ public class HoppersGUI extends Application implements Observer<HoppersModel, St
     private HBox makeLowerButtons() {
         Button loadButton = new Button("Load");
         loadButton.setOnAction(e -> {
-            model.load(fileChooser.showOpenDialog(stage).getPath().replace(REMOVE_FROM_PATH, ""));
+            model.load(fileChooser.showOpenDialog(stage).getPath().replace(currentPath + File.separator, ""));
         });
         Button resetButton = new Button("Reset");
         resetButton.setOnAction(e -> model.reset());
@@ -112,9 +113,9 @@ public class HoppersGUI extends Application implements Observer<HoppersModel, St
         lowerButtons.setAlignment(Pos.CENTER);
 
         fileChooser = new FileChooser();
-        String currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
-        currentPath += File.separator + "data" + File.separator + "hoppers";
-        fileChooser.setInitialDirectory(new File(currentPath));
+        currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
+        String dataPath = currentPath + File.separator + "data" + File.separator + "hoppers";
+        fileChooser.setInitialDirectory(new File(dataPath));
 
         root = new VBox(messageLabel, gridPane, lowerButtons);
         root.setAlignment(Pos.CENTER);

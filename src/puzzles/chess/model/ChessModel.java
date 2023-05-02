@@ -19,7 +19,10 @@ public class ChessModel {
 
     /** is there a current cell selection? */
     private boolean isSelection;
+
+    /** current cell selection */
     private Position currSelection;
+    /** current filename */
     private String filename;
 
     /**
@@ -31,9 +34,15 @@ public class ChessModel {
         this.observers.add(observer);
     }
 
+    /**
+     * Load selected chess configuration file.
+     * Save newly loaded file to temp config to make sure any IOExceptions
+     * are caught without crashing the program.
+     *
+     * @param filename the name of the chess configuration
+     */
     public void load(String filename) {
         try {
-            // TODO reload init?
             ChessConfig temp = new ChessConfig(filename);
             currentConfig = temp;
             this.filename = filename;
@@ -43,6 +52,12 @@ public class ChessModel {
         }
     }
 
+    /**
+     * Give the next step of the solution for the config
+     *
+     * If there is no solution, alert observers that there is no solution
+     * If the puzzle is already solved, alert observers that it is solved
+     */
     public void hint() {
         Solver solve = new Solver(currentConfig);
         List<Configuration> path = solve.solve();
@@ -59,6 +74,19 @@ public class ChessModel {
         }
     }
 
+    /**
+     * Select a cell in the chessboard
+     * Empty cells cannot be selected
+     *
+     * If there is no cell already selected, select the chosen cell
+     * and set isSelection to true.
+     *
+     * If there is a cell already selected, see if the piece at that cell
+     * can be captured by the piece at the originally selected cell.
+     *
+     * @param row row of the selected cell
+     * @param col column of the selected cell
+     */
     public void select(int row, int col) {
         if (!isSelection) {
             if (currentConfig.isValidPos(row, col) &&
@@ -66,11 +94,9 @@ public class ChessModel {
                 currSelection = new Position(row, col,
                         currentConfig.getCellPiece(row, col));
                 alertObservers("Selected " + currSelection.toString());
-//                System.out.println(currentConfig.toString());
                 isSelection = true;
             } else {
                 alertObservers("Invalid selection (" + row + ", " + col + ")");
-//                System.out.println(currentConfig.toString());
                 isSelection = false;
             }
         } else {
@@ -118,6 +144,9 @@ public class ChessModel {
         }
     }
 
+    /**
+     * Reset the puzzle
+     */
     public void reset() {
         try {
             currentConfig = new ChessConfig(filename);
@@ -127,29 +156,77 @@ public class ChessModel {
         }
     }
 
+    /**
+     * Get the list of pieces from currentConfig
+     * For the ChessModel
+     *
+     * @return the list of pieces of the current configuration
+     */
     public ArrayList<Position> getPieces() {
         return currentConfig.getPieces();
     }
 
+    /**
+     * Get the row number of the current configuration
+     * For the ChessModel, uses ChessConfig's getRows function
+     *
+     * @return the row number of the current configuration
+     */
     public int getRows() {
         return currentConfig.getRows();
     }
 
+    /**
+     * Get the columns of the current configuration
+     * For the ChessMode, uses ChessConfig's getCols function
+     *
+     * @return the column number of the current configuration
+     */
     public int getCols() {
         return currentConfig.getCols();
     }
 
+    /**
+     * Get the chess piece at a certain cell
+     * For the ChessModel, uses ChessConfig's getCellPiece function
+     *
+     * @param row the row of the piece
+     * @param col the column of the piece
+     * @return the piece at the specified cell.
+     */
     public char getCellPiece(int row, int col) {
         return currentConfig.getCellPiece(row, col);
     }
 
+    /**
+     * Get the filename of the current configuration
+     *
+     * @return the filename of the current configuration
+     */
     public String getFilename() {
         return filename;
     }
 
+    @Override
     public String toString() {
-        // TODO chess borders
-        return currentConfig.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n" + "   ");
+        for (int i = 0; i < getCols(); i++) {
+            sb.append(i + " ");
+        }
+        sb.append("\n" + "  ").append("-".repeat(2*getCols())).append("\n");
+        for (int i = 0; i < getRows(); i++) {
+            sb.append(i + "| ");
+            for (int j = 0; j < getCols(); j++) {
+                sb.append(getCellPiece(i, j));
+                sb.append(" ");
+                // If at last column in the row, append new line
+                if (j == getCols() - 1) {
+                    sb.append("\n");
+                }
+            }
+        }
+        return sb.toString();
     }
 
     /**
@@ -162,13 +239,15 @@ public class ChessModel {
         }
     }
 
-    public ChessConfig getCurrentConfig() {
-        return currentConfig;
-    }
 
+    /**
+     * Create a new ChessModel with the given filename
+     *
+     * @param filename the filename of the chess config to use
+     * @throws IOException
+     */
     public ChessModel(String filename) throws IOException {
         this.filename = filename;
         this.currentConfig = new ChessConfig(filename);
-//        alertObservers("Loaded: " + filename);
     }
 }

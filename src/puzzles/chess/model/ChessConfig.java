@@ -12,6 +12,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 
+/**
+ * The configuration class of the Chess puzzle
+ */
 public class ChessConfig implements Configuration {
     public static char BISHOP = 'B';
     public static char KING = 'K';
@@ -27,6 +30,12 @@ public class ChessConfig implements Configuration {
     private int numPieces;
     private ArrayList<Position> pieces;
 
+    /**
+     * Create a new ChessConfig using the given filename, starting config
+     *
+     * @param filename file to read and create the ChessConfig from
+     * @throws IOException
+     */
     public ChessConfig(String filename) throws IOException {
         BufferedReader in = new BufferedReader(new FileReader(filename));
         String line = in.readLine();
@@ -66,11 +75,23 @@ public class ChessConfig implements Configuration {
         }
     }
 
+    /**
+     * The ChessConfig constructor to create the configs of the neighbors
+     * of a ChessConfig
+     * Generated when a piece is captured
+     *
+     * @param other other ChessConfig (parent)
+     * @param startRow starting row of the current chess piece
+     * @param startCol starting column of the current chess piece
+     * @param endRow row of the piece being captured,
+     *               end row of the current piece
+     * @param endCol column of the piece being captured,
+     *               end column of the current piece
+     */
     public ChessConfig(ChessConfig other, int startRow,
                        int startCol, int endRow, int endCol) {
         board = new char[ROWS][COLS];
         this.pieces = new ArrayList<>();
-//        this.numPieces = other.numPieces - 1; // captured
         for (int i = 0; i < ROWS; i++) {
             System.arraycopy(other.board[i], 0, this.board[i], 0, COLS);
         }
@@ -101,21 +122,12 @@ public class ChessConfig implements Configuration {
     public Collection<Configuration> getNeighbors() {
         successors = new ArrayList<>();
         // Win condition: only one piece on the board
-//        if (pieces.size() == 1) {
-//            return successors;
-//        } else {
-//            for (Position p : this.pieces) {
             for (int i = 0; i < pieces.size(); i++) {
                 Position p = pieces.get(i);
                 if (p.getPiece() == PAWN) {
                     successors.addAll(pawnMoves(p));
                 }
                 if (p.getPiece() == BISHOP) {
-                    // For bishop top left, row and column decrement by 1
-                    // (-1, -1), (-2, -2), (-3, -3)
-                    // Going top right, -1 +1
-                    // Going bottom left, +1 -1
-                    // Going bottom right, +1 +1
                     successors.addAll(bishopMoves(p));
                 }
                 if (p.getPiece() == KING) {
@@ -132,10 +144,16 @@ public class ChessConfig implements Configuration {
                     successors.addAll(queenMoves(p));
                 }
             }
-//        }
         return successors;
     }
 
+    /**
+     * Create configurations for a selected pawn piece
+     * Pawns capture diagonally forward left or right
+     *
+     * @param p current position of the pawn
+     * @return the configurations of the possible moves for the pawn
+     */
     public Collection<Configuration> pawnMoves(Position p) {
         // Only generating captures, not moves.
         // Pawns capture diagonally
@@ -154,23 +172,29 @@ public class ChessConfig implements Configuration {
         if (isValidPos(r, cRight)) {
             if (!(board[r][cRight] == EMPTY)) {
                 ChessConfig child2 =
-                        new ChessConfig(this, p.getRow(), p.getCol(), r, cRight);
+                        new ChessConfig(this, p.getRow(),
+                                p.getCol(), r, cRight);
                 moves.add(child2);
             }
         }
         return moves;
     }
 
+    /**
+     * Configurations for the selected bishop
+     * Bishops capture diagonally
+     *
+     * @param p position of the current bishop
+     * @return list of the configs for the moves the bishop can make
+     */
     public Collection<Configuration> bishopMoves(Position p) {
         // For bishop top left, row and column decrement by 1
         // (-1, -1), (-2, -2), (-3, -3)
         // Going top right, -1 +1
         // Going bottom left, +1 -1
         // Going bottom right, +1 +1
-        // TODO should it return as soon as a config is made?
         ArrayList<Configuration> moves = new ArrayList<>();
 
-        // TODO is it a good idea to have it less than ROWS?
         // Did we already make a capture in this direction?
         boolean topLeftCapture = false;
         boolean topRightCapture = false;
@@ -220,6 +244,13 @@ public class ChessConfig implements Configuration {
         return moves;
     }
 
+    /**
+     * Configurations for the selected king
+     * Kings can capture in any direction but only move one square
+     *
+     * @param p position of the king piece
+     * @return list of the configs for the moves the king can make
+     */
     public Collection<Configuration> kingMoves(Position p) {
         ArrayList<Configuration> moves = new ArrayList<>();
 
@@ -228,7 +259,6 @@ public class ChessConfig implements Configuration {
         int leftCol = p.getCol() - 1;
         int rightCol = p.getCol() + 1;
 
-        //        for (int i = 1; i < ROWS; i++) {
             // Top left
         if (isValidPos(topRow, leftCol)) {
             if ((board[topRow][leftCol] != EMPTY)) {
@@ -302,6 +332,13 @@ public class ChessConfig implements Configuration {
         return moves;
     }
 
+    /**
+     * Configurations for the moves the selected knight can make
+     * Knights capture in an L- or inverted L-shape
+     *
+     * @param p position of the knight piece
+     * @return list of the configs for the moves the knight can make
+     */
     public Collection<Configuration> knightMoves(Position p) {
         ArrayList<Configuration> moves = new ArrayList<>();
         int downTwo = p.getRow() + 2;
@@ -383,6 +420,14 @@ public class ChessConfig implements Configuration {
         return moves;
     }
 
+    /**
+     * Configurations for the moves the rook can make
+     * Rooks can capture after moving horizontally or vertically
+     * any number of empty squares
+     *
+     * @param p position of the rook piece
+     * @return list of the configs for the moves the rook can make
+     */
     public Collection<Configuration> rookMoves(Position p) {
         ArrayList<Configuration> moves = new ArrayList<>();
         // Did we already capture in this direction?
@@ -435,6 +480,14 @@ public class ChessConfig implements Configuration {
         return moves;
     }
 
+    /**
+     * Configurations for the moves the queen can make
+     * Queens can capture after moving any number of vacant squares
+     * horizontally, vertically, or diagonally.
+     *
+     * @param p position of the queen piece
+     * @return list of the configs for the moves the queen can make
+     */
     public Collection<Configuration> queenMoves(Position p) {
         ArrayList<Configuration> moves = new ArrayList<>();
 
@@ -533,6 +586,13 @@ public class ChessConfig implements Configuration {
         return moves;
     }
 
+    /**
+     * Check if the cell exists on the board
+     *
+     * @param row row of the given cell
+     * @param col column of the given cell
+     * @return whether the cell exists on the board
+     */
     public boolean isValidPos(int row, int col) {
         if (col >= 0 && col < COLS && row >= 0 && row < ROWS) {
             return true;
@@ -541,6 +601,14 @@ public class ChessConfig implements Configuration {
         }
     }
 
+    /**
+     * Check if the piece can capture a piece on the board
+     * Cannot move if the cell is empty
+     *
+     * @param row row of the given cell
+     * @param col column of the given cell
+     * @return whether a piece can capture a cell
+     */
     public boolean isCapture(int row, int col) {
         if ((board[row][col] != EMPTY)) {
             return true;
@@ -548,6 +616,11 @@ public class ChessConfig implements Configuration {
         return false;
     }
 
+    /**
+     * Check if the current config equals another config
+     * @param other the other config
+     * @return true if the configs are equal, false if not.
+     */
     @Override
     public boolean equals(Object other) {
         boolean result = false;
@@ -567,10 +640,23 @@ public class ChessConfig implements Configuration {
         return result;
     }
 
+    /**
+     * Get the chess piece at a certain cell
+     *
+     * @param row row of the cell to check
+     * @param col column of the cell to check
+     * @return the chess piece of the cell
+     */
     public char getCellPiece(int row, int col) {
         return board[row][col];
     }
 
+    /**
+     * Check if the cell is empty
+     * @param row the row of the cell
+     * @param col the column of the cell
+     * @return whether the cell is empty
+     */
     public boolean isEmpty(int row, int col) {
         if (board[row][col] == EMPTY) {
             return true;
@@ -578,14 +664,29 @@ public class ChessConfig implements Configuration {
         return false;
     }
 
+    /**
+     * Get list of chess pieces
+     *
+     * @return list of pieces in the configuration
+     */
     public ArrayList<Position> getPieces() {
         return pieces;
     }
 
+    /**
+     * Get the number of rows of the chessboard
+     *
+     * @return the number of rows of the chessboard
+     */
     public int getRows() {
         return ROWS;
     }
 
+    /**
+     * Get the number of columns of the chessboard
+     *
+     * @return the number of columns of the chessboard
+     */
     public int getCols() {
         return COLS;
     }

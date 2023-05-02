@@ -10,9 +10,6 @@ import java.util.Scanner;
 
 public class ChessPTUI implements Observer<ChessModel, String> {
     private ChessModel model;
-//    private Position currSelection;
-//    private boolean cellSelected;
-//    private Position selectedCellEnd;
     private String filename;
 
     public void init(String filename) throws IOException {
@@ -50,18 +47,8 @@ public class ChessPTUI implements Observer<ChessModel, String> {
                 } else if (words[0].startsWith("h")) {
                     model.hint();
                 } else if (words[0].startsWith("l")) {
-                    // TODO no file specified
-                    // TODO update filename?
                     model.load(words[1]);
                 } else if (words[0].startsWith("s")) {
-                    // TODO no cell given
-//                    if (!cellSelected) {
-//                        currSelection = new Position(words[1], words[2]);
-//                        cellSelected = true;
-//                    } else {
-//                        selectedCellEnd = new Position(words[1], words[2]);
-//                        cellSelected = false;
-//                    }
                     model.select(Integer.parseInt(words[1]),
                             Integer.parseInt(words[2]));
                 } else if (words[0].startsWith("r")) {

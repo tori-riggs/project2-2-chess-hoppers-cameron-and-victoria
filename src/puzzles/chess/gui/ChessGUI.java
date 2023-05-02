@@ -77,9 +77,7 @@ public class ChessGUI extends Application implements Observer<ChessModel, String
     @Override
     public void start(Stage stage) throws Exception {
         this.stage = stage;
-//        Scene scene = new Scene(button);
         this.filename = model.getFilename();
-//        this.fileChooser = new FileChooser();
         this.gameMessage = new Label("Loaded: " + filename);
         this.gameLayout = makeGameLayout();
         gameMessage.setAlignment(Pos.TOP_CENTER);
@@ -91,8 +89,9 @@ public class ChessGUI extends Application implements Observer<ChessModel, String
     }
 
     /**
+     * Make the main game layout
      *
-     * @return
+     * @return the borderpane of the main game layout
      */
     private BorderPane makeGameLayout() {
         BorderPane borderPane = new BorderPane();
@@ -107,21 +106,15 @@ public class ChessGUI extends Application implements Observer<ChessModel, String
         BorderPane bottomPane = new BorderPane();
         HBox buttonBox = makeButtons();
         buttonBox.setAlignment(Pos.CENTER);
-//        buttonBox.setAlignment(Pos.CENTER);
-//        Button load = new Button("Load");
-//        Button reset = new Button("Reset");
-//        Button hint = new Button("Hint");
-//        buttonBox.getChildren().addAll(load, reset, hint);
-//        load.setOnAction(event -> model.load(filename));
-//        hint.setOnAction(event -> model.hint());
         bottomPane.setCenter(buttonBox);
         borderPane.setBottom(bottomPane);
         return borderPane;
     }
 
     /**
+     * Make the load, reset, and hint buttons
      *
-     * @return
+     * @return an hbox containing the load, reset, and hint buttons
      */
     private HBox makeButtons() {
         HBox buttonBox = new HBox();
@@ -134,12 +127,11 @@ public class ChessGUI extends Application implements Observer<ChessModel, String
 
         FileChooser chooser = new FileChooser();
         String currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
-//        currentPath += File.separator + "data" + File.separator + "chess";
         String datapath = currentPath + File.separator + "data" + File.separator + "chess";
-//        chooser.setInitialDirectory(new File(currentPath));
         chooser.setInitialDirectory(new File(datapath));
-//        load.setOnAction(event -> model.load(chooser.showOpenDialog(stage).getPath()));
-        load.setOnAction(event -> model.load(chooser.showOpenDialog(stage).getPath().replace(currentPath + File.separator, "")));
+        load.setOnAction(event ->
+                model.load(chooser.showOpenDialog(stage).getPath().replace(
+                        currentPath + File.separator, "")));
 
         reset.setOnAction(event -> model.reset());
         hint.setOnAction(event -> {
@@ -154,15 +146,15 @@ public class ChessGUI extends Application implements Observer<ChessModel, String
     }
 
     /**
+     * Make the chessboard of the GUI made up of buttons
      *
-     * @return
+     * @return a gridpane of the chess buttons
      */
     private GridPane chessBoard() {
         GridPane board = new GridPane();
         for (int r = 0; r < model.getRows(); r++) {
             for (int c = 0; c < model.getCols(); c++) {
                 Button button = new Button();
-//                button.setGraphic(new ImageView(model.getCellPiece(r, c)));
                 setPieceGraphic(button, r, c);
 
                 if ((r + c) % 2 == 0) {
@@ -179,19 +171,15 @@ public class ChessGUI extends Application implements Observer<ChessModel, String
                 board.add(button, c, r);
             }
         }
-//        Button button = new Button();
-//        button.setGraphic(new ImageView(bishop));
-//        button.setBackground(LIGHT);
-//        button.setMinSize(ICON_SIZE, ICON_SIZE);
-//        button.setMaxSize(ICON_SIZE, ICON_SIZE);
         return board;
     }
 
     /**
+     * Set the image for the piece
      *
-     * @param button
-     * @param row
-     * @param col
+     * @param button the button to change the graphic of
+     * @param row the row of the button
+     * @param col the column of the button
      */
     private void setPieceGraphic(Button button, int row, int col) {
         if (model.getCellPiece(row, col) == ChessConfig.BISHOP) {
